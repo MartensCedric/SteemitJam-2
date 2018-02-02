@@ -13,5 +13,5 @@ public class JobLocation extends Actor
         setY(y);
     }
 
-    public boolean isAvailable() { return crewman != null; }
+    public boolean isAvailable() { return crewman == null; }
 }

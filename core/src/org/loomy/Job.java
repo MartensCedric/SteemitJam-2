@@ -1,5 +1,9 @@
 package org.loomy;
 
-public class Job
+public abstract class Job
 {
+    protected float workLeft;
+    public abstract void resetJob();
+    public abstract void updateJob(float delta);
+    public abstract Item requiresItem();
 }

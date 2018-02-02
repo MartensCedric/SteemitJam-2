@@ -27,10 +27,14 @@ public class BoatScreen extends StageScreen{
         JobLocation jobLookout = new JobLocation(0, 0);
         JobLocation jobCannonRight = new JobLocation(110, -100);
         JobLocation jobCannonLeft = new JobLocation(-110, -100);
+        JobLocation jobAmmoLeft = new JobLocation(-110, -160);
+        JobLocation jobSteering = new JobLocation(0, -275);
 
         jobLocations.add(jobLookout);
         jobLocations.add(jobCannonRight);
         jobLocations.add(jobCannonLeft);
+        jobLocations.add(jobAmmoLeft);
+        jobLocations.add(jobSteering);
     }
 
     @Override
