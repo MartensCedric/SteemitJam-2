@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,13 +17,16 @@ public class BoatScreen extends StageScreen{
     private AssetManager assetManager;
     private Batch batch;
 
+    private List<Crewman> crewmen;
     private List<JobLocation> jobLocations;
+    private Crewman selectedCrewman;
 
     public BoatScreen(GameManager gameManager) {
         this.gameManager = gameManager;
         this.assetManager = gameManager.assetManager;
         this.batch = new SpriteBatch();
         this.jobLocations = new ArrayList<>();
+        this.crewmen = new ArrayList<>();
 
         JobLocation jobLookout = new JobLocation(0, 0);
         JobLocation jobCannonRight = new JobLocation(110, -100);
@@ -35,10 +39,13 @@ public class BoatScreen extends StageScreen{
         jobLocations.add(jobCannonLeft);
         jobLocations.add(jobAmmoLeft);
         jobLocations.add(jobSteering);
+
+        crewmen.add(new Crewman(0, -300));
     }
 
     @Override
-    public void render(float delta) {
+    public void render(float delta)
+    {
         Gdx.gl.glClearColor(0, 0, 1, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         batch.setProjectionMatrix(getCamera().combined);
@@ -51,6 +58,13 @@ public class BoatScreen extends StageScreen{
         {
             batch.draw(txtJobLocation, jl.getX(), jl.getY());
         }
+
+        Texture txtCrewman = assetManager.get("crewman.png", Texture.class);
+        TextureRegion trCrewman = new TextureRegion(txtCrewman);
+        for(Crewman c : crewmen)
+            batch.draw(trCrewman, c.getX(), c.getY(), 0, 0,
+                    txtCrewman.getWidth(), txtCrewman.getHeight(), 1, 1, (float) Math.toDegrees(c.getRotation()));
+
         batch.end();
         super.render(delta);
     }
