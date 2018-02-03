@@ -3,6 +3,8 @@ package org.loomy;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.math.MathUtils;
+import org.loomy.job.CannonAmmoJob;
+import org.loomy.job.CannonRamJob;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,29 +23,23 @@ public class JobManager
         this.crewmen = new ArrayList<>();
         this.jobLocations = new ArrayList<>();
 
-        JobLocation jobLookout = new JobLocation(0, 0);
-        JobLocation jobCannonRight = new JobLocation(110, -100);
-        JobLocation jobCannonLeft = new JobLocation(-110, -100);
-        JobLocation jobAmmoLeft = new JobLocation(-110, -160);
-        JobLocation jobSteering = new JobLocation(0, -275);
-
-        jobLocations.add(jobLookout);
-        jobLocations.add(jobCannonRight);
-        jobLocations.add(jobCannonLeft);
-        jobLocations.add(jobAmmoLeft);
-        jobLocations.add(jobSteering);
+        jobLocations.add(new JobLocation(0, 0, new CannonRamJob()));
+        jobLocations.add(new JobLocation(110, -100, new CannonRamJob()));
+        jobLocations.add(new JobLocation(-110, -100, new CannonRamJob()));
+        jobLocations.add(new JobLocation(-110, -160, new CannonAmmoJob()));
+        jobLocations.add(new JobLocation(0, -275, new CannonRamJob()));
 
         crewmen.add(new Crewman(0, -300));
     }
 
     public void assignJob(Crewman crewman, JobLocation jobLocation)
     {
-
+        jobLocation.assign(crewman);
     }
 
     public boolean canDoJob(Crewman crewman, JobLocation jobLocation)
     {
-        if(crewman.hasJob())
+        if(hasJob(crewman))
             return false;
 
         if(!jobLocation.isAvailable())
@@ -57,7 +53,11 @@ public class JobManager
 
     public void update(float delta)
     {
+        for(Crewman c : crewmen)
+            c.update(delta);
 
+        for(JobLocation jl : jobLocations)
+            jl.update(delta);
     }
 
     public List<Crewman> getCrewmen() { return crewmen; }
@@ -89,8 +89,42 @@ public class JobManager
             }
         }else if(button == Input.Buttons.RIGHT)
         {
+            if(selectedCrewman != null)
+            {
+                for(JobLocation jl : jobLocations)
+                {
+                    float jx = jl.getX();
+                    float jy = jl.getY();
+                    float size = JOB_LOCATION_SIZE;
 
+                    if(MathUtil.isInside(x, y,
+                            jx - size/2, jy - size/2,
+                            jx + size/2, jy + size/2))
+                    {
+
+                        if(canDoJob(selectedCrewman, jl))
+                        {
+                            assignJob(selectedCrewman, jl);
+                            System.out.println("Crewman now has a job!");
+                        }else{
+                            System.out.println("Failed to assign job!");
+                        }
+
+                        selectedCrewman = null;
+                        return true;
+                    }
+                }
+            }
         }
+
+        return false;
+    }
+
+    public boolean hasJob(Crewman crewman)
+    {
+        for(JobLocation jl : jobLocations)
+            if(jl.getCrewman() == crewman)
+                return true;
 
         return false;
     }
