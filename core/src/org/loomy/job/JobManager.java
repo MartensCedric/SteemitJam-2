@@ -7,6 +7,8 @@ import org.loomy.MathUtil;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.loomy.BoatScreen.crewmanOnMast;
+
 public class JobManager {
     private List<Crewman> crewmen;
     private List<JobLocation> jobLocations;
@@ -77,8 +79,8 @@ public class JobManager {
         if (button == Input.Buttons.LEFT) {
 
             for (Crewman c : crewmen) {
-                float cx = c.getX();
-                float cy = c.getY();
+                float cx = c == crewmanOnMast ? 0 : c.getX();
+                float cy = c == crewmanOnMast ? 50 : c.getY();
                 float size = CREWMAN_SIZE;
 
                 if((c.getCurrentJob() == null && !c.hasTarget()) ||
@@ -119,6 +121,8 @@ public class JobManager {
                                 }
                             });
 
+                            if(selectedCrewman == crewmanOnMast)
+                                crewmanOnMast = null;
 
                             assignJob(selectedCrewman, jl);
                             System.out.println("Crewman now has a job!");

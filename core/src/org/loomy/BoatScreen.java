@@ -47,6 +47,8 @@ public class BoatScreen extends StageScreen{
     public static final float CANNONBALL_SIZE = 32;
     private static final float CREATURE_SIZE_MUL = 15;
     public static final float BORDER_AT = 2_700;
+    public static final float MAST_X = 0;
+    public static final float MAST_Y = 50;
     private List<SeaCreature> seaCreatures;
     private int totalCreatures = 0;
     private float deltaSinceStart = 0;
@@ -191,9 +193,12 @@ public class BoatScreen extends StageScreen{
         Crewman selectedCrewman = jobManager.getSelectedCrewman();
         if(selectedCrewman != null)
         {
+            float x = selectedCrewman == crewmanOnMast ? MAST_X : selectedCrewman.getX();
+            float y = selectedCrewman == crewmanOnMast ? MAST_Y : selectedCrewman.getY();
+
             Texture txtSelectedCrewman = assetManager.get("selected-crewman.png", Texture.class);
-            batch.draw(txtSelectedCrewman, selectedCrewman.getX() - txtSelectedCrewman.getWidth()/2,
-                    selectedCrewman.getY() - txtSelectedCrewman.getHeight()/2);
+            batch.draw(txtSelectedCrewman, x - txtSelectedCrewman.getWidth()/2,
+                    y - txtSelectedCrewman.getHeight()/2);
         }
 
         Texture txtCannon = assetManager.get("cannon.png", Texture.class);
@@ -230,6 +235,16 @@ public class BoatScreen extends StageScreen{
             }
         }
 
+        Texture txtMast = assetManager.get("mast.png", Texture.class);
+        batch.draw(txtMast, -txtBoat.getWidth()/2, -txtBoat.getHeight()/2);
+        if(crewmanOnMast != null) {
+            Texture txtCrewmanOnMast = assetManager.get("crewman-spyglass.png", Texture.class);
+            TextureRegion tr = new TextureRegion(txtCrewmanOnMast);
+            batch.draw(tr, MAST_X - tr.getRegionWidth() / 2,
+                    MAST_Y - tr.getRegionHeight() / 2,
+                    tr.getRegionWidth() / 2, tr.getRegionHeight() / 2,
+                    txtCrewman.getWidth(), txtCrewman.getHeight(), 1, 1, 90);
+        }
 
         batch.end();
         this.shapeRenderer.setProjectionMatrix(worldCamera.combined);
@@ -251,17 +266,6 @@ public class BoatScreen extends StageScreen{
         }
 
         this.shapeRenderer.end();
-        batch.begin();
-        batch.setProjectionMatrix(worldCamera.combined);
-        Texture txtMast = assetManager.get("mast.png", Texture.class);
-        batch.draw(txtMast, -txtBoat.getWidth()/2, -txtBoat.getHeight()/2);
-        if(crewmanOnMast != null)
-        {
-            Texture txtCrewmanOnMast = assetManager.get("crewman-spyglass.png", Texture.class);
-            batch.draw(txtCrewmanOnMast, 0 - txtCrewmanOnMast.getWidth()/2, 50 - txtCrewmanOnMast.getHeight()/2);
-        }
-
-        batch.end();
         super.render(delta);
     }
 
