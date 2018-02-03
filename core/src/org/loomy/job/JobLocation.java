@@ -1,6 +1,8 @@
 package org.loomy.job;
 
 import com.badlogic.gdx.math.Vector2;
+import org.loomy.BoatScreen;
+import org.loomy.Cannonball;
 import org.loomy.Crewman;
 
 public class JobLocation
@@ -37,6 +39,10 @@ public class JobLocation
             @Override
             public void finishJob() {
                 crewman.setItem(getJob().rewardedItem());
+                if(getJob() instanceof CannonFireJob)
+                {
+                    BoatScreen.cannonballs.add(new Cannonball(position.cpy()));
+                }
             }
         });
     }

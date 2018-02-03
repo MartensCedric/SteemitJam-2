@@ -17,6 +17,10 @@ import org.loomy.job.Job;
 import org.loomy.job.JobLocation;
 import org.loomy.job.JobManager;
 
+
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.loomy.GameManager.HEIGHT;
 import static org.loomy.GameManager.WIDTH;
 
@@ -28,12 +32,15 @@ public class BoatScreen extends StageScreen{
     private OrthographicCamera worldCamera;
     private ShapeRenderer shapeRenderer;
 
+    public static List<Cannonball> cannonballs; //game jam !! hehe
+
     private JobManager jobManager;
 
     public BoatScreen(GameManager gameManager) {
         this.gameManager = gameManager;
         this.assetManager = gameManager.assetManager;
         this.worldCamera = new OrthographicCamera(WIDTH, HEIGHT);
+        this.cannonballs = new ArrayList<>();
         this.batch = new SpriteBatch();
         this.jobManager = new JobManager();
         getInputMultiplexer().addProcessor(inputProcessor);
@@ -48,11 +55,18 @@ public class BoatScreen extends StageScreen{
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         jobManager.update(delta);
+        for(Cannonball cannonball : cannonballs)
+            cannonball.update(delta);
 
         batch.setProjectionMatrix(worldCamera.combined);
         batch.begin();
         Texture txtBoat = assetManager.get("boat.png", Texture.class);
         batch.draw(txtBoat, -txtBoat.getWidth()/2, -txtBoat.getHeight()/2);
+
+        Texture txtCannonball = assetManager.get("cannon-ball.png", Texture.class);
+        for(Cannonball c : cannonballs)
+            batch.draw(txtCannonball, c.getPosition().x - txtCannonball.getWidth()/2,
+                    c.getPosition().y - txtCannonball.getHeight()/2);
 
         Texture txtJobLocation = assetManager.get("job-location.png", Texture.class);
         Texture txtJobLocationProgress = assetManager.get("job-location-progress.png", Texture.class);
@@ -139,11 +153,13 @@ public class BoatScreen extends StageScreen{
                 shapeRenderer.rect(jl.getX() - 32, jl.getY() + 32, 64 - 64 * progress, 12);
             }
         }
-
-        shapeRenderer.setColor(Color.BLACK);
-        shapeRenderer.line(0, -HEIGHT/2, 0, HEIGHT/2);
-        shapeRenderer.line(-WIDTH/2, 0, WIDTH/2, 0);
+        
         this.shapeRenderer.end();
+        batch.begin();
+        batch.setProjectionMatrix(worldCamera.combined);
+        Texture txtMast = assetManager.get("mast.png", Texture.class);
+        batch.draw(txtMast, -txtBoat.getWidth()/2, -txtBoat.getHeight()/2);
+        batch.end();
         super.render(delta);
     }
 

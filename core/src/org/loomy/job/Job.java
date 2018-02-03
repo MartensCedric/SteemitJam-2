@@ -29,7 +29,7 @@ public abstract class Job
         if(inProgress)
             workLeft -= delta;
 
-        if(workLeft <= 0)
+        if(workLeft <= 0 && jobState != JobState.FINISHED)
 
         {   jobState = JobState.FINISHED;
             if(jobFinished != null)
