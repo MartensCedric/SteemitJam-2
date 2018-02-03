@@ -2,30 +2,24 @@ package org.loomy.job;
 
 import org.loomy.Item;
 
-public class CannonAmmoJob extends Job {
-
-    @Override
-    public void updateJob(float delta) {
-        super.updateJob(delta);
-    }
-
+public class CannonFillJob extends Job{
     @Override
     public Item requiresItem() {
-        return Item.NO_ITEM;
-    }
-
-    @Override
-    public boolean requiresEmptyHands() {
-        return true;
-    }
-
-    @Override
-    public Item rewardedItem() {
         return Item.CANNONBALL;
     }
 
     @Override
+    public boolean requiresEmptyHands() {
+        return false;
+    }
+
+    @Override
+    public Item rewardedItem() {
+        return Item.NO_ITEM;
+    }
+
+    @Override
     protected float getTotalWork() {
-        return 2;
+        return 3;
     }
 }

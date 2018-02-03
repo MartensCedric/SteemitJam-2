@@ -1,6 +1,7 @@
 package org.loomy;
 
 import com.badlogic.gdx.math.Vector2;
+import org.loomy.job.JobLocation;
 
 
 public class Crewman
@@ -67,5 +68,9 @@ public class Crewman
 
     public void setCurrentJob(JobLocation currentJob) {
         this.currentJob = currentJob;
+    }
+
+    public void setItem(Item item) {
+        this.item = item;
     }
 }

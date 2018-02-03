@@ -14,6 +14,8 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import org.loomy.job.Job;
+import org.loomy.job.JobLocation;
+import org.loomy.job.JobManager;
 
 import static org.loomy.GameManager.HEIGHT;
 import static org.loomy.GameManager.WIDTH;
@@ -92,16 +94,32 @@ public class BoatScreen extends StageScreen{
         batch.draw(txtCannon, 120, -118, txtCannon.getWidth()/2, txtCannon.getHeight()/2
                 , txtCannon.getWidth(), txtCannon.getHeight(), 1, 1, 0, 0, 0,
                 txtCannon.getWidth(), txtCannon.getHeight(), true, false);
-        //draw(Texture texture, float x, float y, float originX, float originY, float width, float height, float scaleX, float scaleY, float rotation, int srcX, int srcY, int srcWidth, int srcHeight, boolean flipX, boolean flipY)
 
         Texture txtCrewman = assetManager.get("crewman.png", Texture.class);
+        Texture txtCrewmanCannonball = assetManager.get("crewman-cannonballs.png", Texture.class);
+        Texture txtCrewmanRammer = assetManager.get("crewman-rammer.png", Texture.class);
 
-        TextureRegion trCrewman = new TextureRegion(txtCrewman);
 
         for(Crewman c : jobManager.getCrewmen())
-            batch.draw(trCrewman, c.getX() - trCrewman.getRegionWidth()/2, c.getY() - trCrewman.getRegionHeight()/2,
-                    trCrewman.getRegionWidth()/2, trCrewman.getRegionHeight()/2,
+        {
+            TextureRegion txtitem = null;
+            switch (c.getItem()) {
+                case NO_ITEM:
+                    txtitem = new TextureRegion(txtCrewman);
+                    break;
+                case CANNONBALL:
+                    txtitem = new TextureRegion(txtCrewmanCannonball);
+                    break;
+                case RAMMER:
+                    txtitem = new TextureRegion(txtCrewmanRammer);
+                    break;
+            }
+
+            batch.draw(txtitem, c.getX() - txtitem.getRegionWidth()/2, c.getY() - txtitem.getRegionHeight()/2,
+                    txtitem.getRegionWidth()/2, txtitem.getRegionHeight()/2,
                     txtCrewman.getWidth(), txtCrewman.getHeight(), 1, 1, c.getDirection().angle());
+        }
+
 
         batch.end();
         this.shapeRenderer.setProjectionMatrix(worldCamera.combined);

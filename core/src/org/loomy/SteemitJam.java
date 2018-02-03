@@ -18,6 +18,8 @@ public class SteemitJam extends Game {
 		assetManager.load("job-location-reserved.png", Texture.class);
 		assetManager.load("boat.png", Texture.class);
 		assetManager.load("crewman.png", Texture.class);
+		assetManager.load("crewman-cannonballs.png", Texture.class);
+		assetManager.load("crewman-rammer.png", Texture.class);
 		assetManager.load("selected-crewman.png", Texture.class);
 		assetManager.load("cannon.png", Texture.class);
 		assetManager.finishLoading();

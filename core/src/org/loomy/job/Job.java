@@ -7,7 +7,7 @@ public abstract class Job
     protected boolean inProgress;
     protected float workLeft;
     protected JobState jobState = JobState.OPEN;
-    protected Runnable jobFinished = null;
+    protected JobFinishListener jobFinished = null;
 
     public Job()
     {
@@ -34,7 +34,7 @@ public abstract class Job
         {   jobState = JobState.FINISHED;
             if(jobFinished != null)
             {
-                jobFinished.run();
+                jobFinished.finishJob();
             }
         }
     }
@@ -50,6 +50,11 @@ public abstract class Job
         RESERVED,
         PROGRESS,
         FINISHED
+    }
+
+    public void setJobFinished(JobFinishListener jobFinished)
+    {
+        this.jobFinished = jobFinished;
     }
 
     protected abstract float getTotalWork();

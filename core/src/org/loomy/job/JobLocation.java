@@ -1,23 +1,44 @@
-package org.loomy;
+package org.loomy.job;
 
 import com.badlogic.gdx.math.Vector2;
-import org.loomy.job.Job;
+import org.loomy.Crewman;
 
 public class JobLocation
 {
     private Crewman crewman;
-    private Job job;
     private Vector2 position;
+    private Job[] jobs;
+    private int jobIndex = 0;
 
-    public JobLocation(float x, float y, Job job)
+    public void nextJob()
+    {
+        if(jobs.length > 1)
+        {
+            jobIndex++;
+            jobIndex = jobIndex % jobs.length;
+        }
+    }
+
+    public JobLocation(float x, float y, Job j)
+    {
+        this(x, y, new Job[]{j});
+    }
+
+    public JobLocation(float x, float y, Job[] jobs)
     {
         this.position = new Vector2(x, y);
-        this.job = job;
+        this.jobs = jobs;
     }
 
     public void assign(Crewman crewman)
     {
         this.crewman = crewman;
+        getJob().setJobFinished(new JobFinishListener() {
+            @Override
+            public void finishJob() {
+                crewman.setItem(getJob().rewardedItem());
+            }
+        });
     }
 
     public void removeCrewman() {
@@ -28,10 +49,10 @@ public class JobLocation
 
     public void update(float delta)
     {
-        job.updateJob(delta);
+        getJob().updateJob(delta);
     }
 
-    public Job getJob() { return job; }
+    public Job getJob() { return jobs[jobIndex]; }
 
     public Job.JobState getJobState()
     {
@@ -40,7 +61,7 @@ public class JobLocation
         {
             return Job.JobState.RESERVED;
         }else{
-            return job.getJobState();
+            return getJob().getJobState();
         }
     }
 

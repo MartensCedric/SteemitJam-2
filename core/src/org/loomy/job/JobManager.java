@@ -1,10 +1,8 @@
-package org.loomy;
+package org.loomy.job;
 
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.math.Vector2;
-import org.loomy.job.CannonAmmoJob;
-import org.loomy.job.CannonRamJob;
-import org.loomy.job.Job;
+import org.loomy.Crewman;
+import org.loomy.MathUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,9 +19,9 @@ public class JobManager {
         this.crewmen = new ArrayList<>();
         this.jobLocations = new ArrayList<>();
 
-        jobLocations.add(new JobLocation(0, 0, new CannonRamJob()));
-        jobLocations.add(new JobLocation(110, -100, new CannonRamJob()));
-        jobLocations.add(new JobLocation(-110, -100, new CannonRamJob()));
+        jobLocations.add(new JobLocation(0, 0, new Job[]{new TakeRammerJob(), new DepositRammerJob()}));
+        jobLocations.add(new JobLocation(110, -100, new Job[]{new CannonFillJob(), new CannonRamJob(), new CannonFireJob()}));
+        jobLocations.add(new JobLocation(-110, -100, new Job[]{new CannonFillJob(), new CannonRamJob(), new CannonFireJob()}));
         jobLocations.add(new JobLocation(-110, -160, new CannonAmmoJob()));
         jobLocations.add(new JobLocation(0, -275, new CannonAmmoJob()));
 
@@ -108,6 +106,19 @@ public class JobManager {
                             jx + size / 2, jy + size / 2)) {
 
                         if (canDoJob(selectedCrewman, jl)) {
+
+                            jobLocations.forEach(j -> {
+                                if(!j.isAvailable())
+                                {
+                                    if(j.getCrewman().getX() == selectedCrewman.getX() &&
+                                            j.getCrewman().getY() == selectedCrewman.getY())
+                                    {
+                                        j.nextJob();
+                                    }
+                                }
+                            });
+
+
                             assignJob(selectedCrewman, jl);
                             System.out.println("Crewman now has a job!");
                             selectedCrewman.setTarget(jl);
