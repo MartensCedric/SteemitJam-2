@@ -17,6 +17,7 @@ public abstract class Job
     public void resetJob() {
         inProgress = false;
         workLeft = getTotalWork();
+        jobState = JobState.OPEN;
     }
     public void startJob()
     {

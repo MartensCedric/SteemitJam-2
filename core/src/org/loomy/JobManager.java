@@ -4,6 +4,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.math.Vector2;
 import org.loomy.job.CannonAmmoJob;
 import org.loomy.job.CannonRamJob;
+import org.loomy.job.Job;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,19 +25,24 @@ public class JobManager {
         jobLocations.add(new JobLocation(110, -100, new CannonRamJob()));
         jobLocations.add(new JobLocation(-110, -100, new CannonRamJob()));
         jobLocations.add(new JobLocation(-110, -160, new CannonAmmoJob()));
-        jobLocations.add(new JobLocation(0, -275, new CannonRamJob()));
+        jobLocations.add(new JobLocation(0, -275, new CannonAmmoJob()));
 
         crewmen.add(new Crewman(0, -300));
         crewmen.add(new Crewman(20, 130));
     }
 
     public void assignJob(Crewman crewman, JobLocation jobLocation) {
+
+        if(crewman.getCurrentJob() != null)
+        {
+            crewman.getCurrentJob().removeCrewman();
+            crewman.getCurrentJob().getJob().resetJob();
+        }
+
         jobLocation.assign(crewman);
     }
 
     public boolean canDoJob(Crewman crewman, JobLocation jobLocation) {
-        if (hasJob(crewman))
-            return false;
 
         if (!jobLocation.isAvailable())
             return false;
@@ -76,12 +82,17 @@ public class JobManager {
                 float cy = c.getY();
                 float size = CREWMAN_SIZE;
 
-                if (MathUtil.isInside(x, y,
-                        cx - size / 2, cy - size / 2,
-                        cx + size / 2, cy + size / 2)) {
-                    selectedCrewman = c;
-                    System.out.println("Selected crew man!");
-                    return true;
+                if((c.getCurrentJob() == null && !c.hasTarget()) ||
+                        (c.getCurrentJob() != null && c.getCurrentJob().getJob().getJobState() ==
+                        Job.JobState.FINISHED))
+                {
+                    if (MathUtil.isInside(x, y,
+                            cx - size / 2, cy - size / 2,
+                            cx + size / 2, cy + size / 2)) {
+                        selectedCrewman = c;
+                        System.out.println("Selected crew man!");
+                        return true;
+                    }
                 }
             }
 
@@ -110,14 +121,6 @@ public class JobManager {
                 }
             }
         }
-
-        return false;
-    }
-
-    public boolean hasJob(Crewman crewman) {
-        for (JobLocation jl : jobLocations)
-            if (jl.getCrewman() == crewman)
-                return true;
 
         return false;
     }

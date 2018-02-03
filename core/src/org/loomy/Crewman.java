@@ -9,6 +9,7 @@ public class Crewman
     private Vector2 position;
     private Vector2 direction;
     private JobLocation walkingTarget;
+    private JobLocation currentJob;
 
     private float speed; //influences walking and productivity
 
@@ -34,6 +35,7 @@ public class Crewman
             {
                 position = target;
                 walkingTarget.getJob().startJob();
+                currentJob = walkingTarget;
                 walkingTarget = null;
             }
         }
@@ -57,5 +59,13 @@ public class Crewman
 
     public void setTarget(JobLocation target) {
         this.walkingTarget = target;
+    }
+
+    public JobLocation getCurrentJob() {
+        return currentJob;
+    }
+
+    public void setCurrentJob(JobLocation currentJob) {
+        this.currentJob = currentJob;
     }
 }

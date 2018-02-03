@@ -87,6 +87,13 @@ public class BoatScreen extends StageScreen{
                     selectedCrewman.getY() - txtSelectedCrewman.getHeight()/2);
         }
 
+        Texture txtCannon = assetManager.get("cannon.png", Texture.class);
+        batch.draw(txtCannon, -152 - txtCannon.getWidth()/2, -102 - txtCannon.getHeight()/2);
+        batch.draw(txtCannon, 120, -118, txtCannon.getWidth()/2, txtCannon.getHeight()/2
+                , txtCannon.getWidth(), txtCannon.getHeight(), 1, 1, 0, 0, 0,
+                txtCannon.getWidth(), txtCannon.getHeight(), true, false);
+        //draw(Texture texture, float x, float y, float originX, float originY, float width, float height, float scaleX, float scaleY, float rotation, int srcX, int srcY, int srcWidth, int srcHeight, boolean flipX, boolean flipY)
+
         Texture txtCrewman = assetManager.get("crewman.png", Texture.class);
 
         TextureRegion trCrewman = new TextureRegion(txtCrewman);
@@ -114,6 +121,10 @@ public class BoatScreen extends StageScreen{
                 shapeRenderer.rect(jl.getX() - 32, jl.getY() + 32, 64 - 64 * progress, 12);
             }
         }
+
+        shapeRenderer.setColor(Color.BLACK);
+        shapeRenderer.line(0, -HEIGHT/2, 0, HEIGHT/2);
+        shapeRenderer.line(-WIDTH/2, 0, WIDTH/2, 0);
         this.shapeRenderer.end();
         super.render(delta);
     }
