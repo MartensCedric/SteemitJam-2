@@ -3,14 +3,17 @@ package org.loomy;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import org.loomy.job.Job;
 
 import static org.loomy.GameManager.HEIGHT;
 import static org.loomy.GameManager.WIDTH;
@@ -21,6 +24,7 @@ public class BoatScreen extends StageScreen{
     private AssetManager assetManager;
     private Batch batch;
     private OrthographicCamera worldCamera;
+    private ShapeRenderer shapeRenderer;
 
     private JobManager jobManager;
 
@@ -31,12 +35,14 @@ public class BoatScreen extends StageScreen{
         this.batch = new SpriteBatch();
         this.jobManager = new JobManager();
         getInputMultiplexer().addProcessor(inputProcessor);
+        this.shapeRenderer = new ShapeRenderer();
+        this.shapeRenderer.setAutoShapeType(true);
     }
 
     @Override
     public void render(float delta)
     {
-        Gdx.gl.glClearColor(0, 0, 1, 1);
+        Gdx.gl.glClearColor(0f, 149f/255f, 233f/255f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         jobManager.update(delta);
@@ -49,6 +55,7 @@ public class BoatScreen extends StageScreen{
         Texture txtJobLocation = assetManager.get("job-location.png", Texture.class);
         Texture txtJobLocationProgress = assetManager.get("job-location-progress.png", Texture.class);
         Texture txtJobLocationFinished = assetManager.get("job-location-finished.png", Texture.class);
+        Texture txtJobLocationReserved = assetManager.get("job-location-reserved.png", Texture.class);
 
         for(JobLocation jl : jobManager.getJobLocations())
         {
@@ -62,6 +69,9 @@ public class BoatScreen extends StageScreen{
                     break;
                 case FINISHED:
                     txtJobState = txtJobLocationFinished;
+                    break;
+                case RESERVED:
+                    txtJobState = txtJobLocationReserved;
                     break;
             }
 
@@ -87,6 +97,24 @@ public class BoatScreen extends StageScreen{
                     txtCrewman.getWidth(), txtCrewman.getHeight(), 1, 1, c.getDirection().angle());
 
         batch.end();
+        this.shapeRenderer.setProjectionMatrix(worldCamera.combined);
+        this.shapeRenderer.begin();
+        Color loadBg = new Color(58f/255f, 68f/255f, 102f/255f, 1f);
+        Color loadBar = new Color(99f/255f, 199f/255f, 77f/255f, 1f);
+        for(JobLocation jl : jobManager.getJobLocations())
+        {
+            if(jl.getJobState().equals(Job.JobState.PROGRESS))
+            {
+                float progress = jl.getJob().getProgress();
+                shapeRenderer.set(ShapeRenderer.ShapeType.Filled);
+                shapeRenderer.setColor(loadBg);
+                shapeRenderer.rect(jl.getX() - 32, jl.getY() + 32, 64,12);
+
+                shapeRenderer.setColor(loadBar);
+                shapeRenderer.rect(jl.getX() - 32, jl.getY() + 32, 64 - 64 * progress, 12);
+            }
+        }
+        this.shapeRenderer.end();
         super.render(delta);
     }
 

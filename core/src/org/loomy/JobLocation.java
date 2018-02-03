@@ -26,7 +26,10 @@ public class JobLocation
 
     public boolean isAvailable() { return crewman == null; }
 
-    public void update(float delta) {}
+    public void update(float delta)
+    {
+        job.updateJob(delta);
+    }
 
     public Job getJob() { return job; }
 

@@ -18,21 +18,22 @@ public class Crewman
     {
         position = new Vector2(x, y);
         direction = new Vector2();
-        speed = 35f;
+        speed = 55f;
     }
 
     public void update(float delta) {
         if(hasTarget())
         {
             Vector2 target = new Vector2(walkingTarget.getX(), walkingTarget.getY());
-            direction.set(new Vector2().sub(position));
+            direction.set(new Vector2(target).sub(position));
             direction.nor();
 
             position.add(direction.cpy().scl(speed * delta));
 
-            if(position.epsilonEquals(target, 0.15f))
+            if(position.epsilonEquals(target, 0.5f))
             {
                 position = target;
+                walkingTarget.getJob().startJob();
                 walkingTarget = null;
             }
         }

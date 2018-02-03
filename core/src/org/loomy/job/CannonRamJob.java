@@ -6,11 +6,6 @@ public class CannonRamJob extends Job
 {
 
     @Override
-    public void resetJob() {
-        workLeft = 3_000;
-    }
-
-    @Override
     public Item requiresItem() {
         return Item.RAMMER;
     }
@@ -23,5 +18,10 @@ public class CannonRamJob extends Job
     @Override
     public Item rewardedItem() {
         return Item.RAMMER;
+    }
+
+    @Override
+    protected float getTotalWork() {
+        return 3;
     }
 }
