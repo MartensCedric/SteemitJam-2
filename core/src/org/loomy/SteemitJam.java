@@ -15,6 +15,7 @@ public class SteemitJam extends Game {
 		assetManager.load("job-location.png", Texture.class);
 		assetManager.load("boat.png", Texture.class);
 		assetManager.load("crewman.png", Texture.class);
+		assetManager.load("selected-crewman.png", Texture.class);
 		assetManager.finishLoading();
 		this.gameManager.assetManager = assetManager;
 		setScreen(new BoatScreen(gameManager));

@@ -16,10 +16,8 @@ import static org.loomy.GameManager.WIDTH;
 public abstract class StageScreen implements Screen
 {
     private Stage stage;
-    private OrthographicCamera camera;
 
     public StageScreen() {
-        camera = new OrthographicCamera(WIDTH, HEIGHT);
         stage = new Stage(new StretchViewport(WIDTH, HEIGHT));
         Gdx.input.setInputProcessor(getStage());
     }
@@ -46,6 +44,6 @@ public abstract class StageScreen implements Screen
     }
 
     public OrthographicCamera getCamera() {
-        return camera;
+        return (OrthographicCamera) stage.getCamera();
     }
 }

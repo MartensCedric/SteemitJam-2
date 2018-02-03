@@ -1,13 +1,14 @@
 package org.loomy;
 
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.scenes.scene2d.Actor;
 
-public class Crewman extends Actor
+
+public class Crewman
 {
     private Job job;
     private Item item = Item.NO_ITEM;
-    private Vector2 direction = new Vector2().setAngleRad((float) Math.PI);
+    private Vector2 position = new Vector2();
+    private Vector2 direction = new Vector2().setToRandomDirection();
     private float speed; //influences walking and productivity
 
     public boolean hasJob() { return job != null; }
@@ -15,12 +16,16 @@ public class Crewman extends Actor
 
     public Crewman(float x, float y)
     {
-        setX(x);
-        setY(y);
+        position = new Vector2(x, y);
     }
+
+    public void update(float delta) {}
 
     public float getRotation()
     {
         return direction.angle();
     }
+
+    public float getX() { return position.x; }
+    public float getY() { return position.y; }
 }
