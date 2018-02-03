@@ -17,7 +17,6 @@ import org.loomy.job.Job;
 import org.loomy.job.JobLocation;
 import org.loomy.job.JobManager;
 
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -67,6 +66,9 @@ public class BoatScreen extends StageScreen{
         for(Cannonball c : cannonballs)
             batch.draw(txtCannonball, c.getPosition().x - txtCannonball.getWidth()/2,
                     c.getPosition().y - txtCannonball.getHeight()/2);
+
+        Texture txtWheel = assetManager.get("wheel.png", Texture.class);
+        batch.draw(txtWheel, 0 - txtWheel.getWidth()/2, -225 - txtWheel.getHeight()/2);
 
         Texture txtJobLocation = assetManager.get("job-location.png", Texture.class);
         Texture txtJobLocationProgress = assetManager.get("job-location-progress.png", Texture.class);
@@ -153,7 +155,7 @@ public class BoatScreen extends StageScreen{
                 shapeRenderer.rect(jl.getX() - 32, jl.getY() + 32, 64 - 64 * progress, 12);
             }
         }
-        
+
         this.shapeRenderer.end();
         batch.begin();
         batch.setProjectionMatrix(worldCamera.combined);

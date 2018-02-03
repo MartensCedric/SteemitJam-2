@@ -24,6 +24,7 @@ public class SteemitJam extends Game {
 		assetManager.load("cannon-ball.png", Texture.class);
 		assetManager.load("cannon.png", Texture.class);
 		assetManager.load("mast.png", Texture.class);
+		assetManager.load("wheel.png", Texture.class);
 		assetManager.finishLoading();
 		this.gameManager.assetManager = assetManager;
 		setScreen(new BoatScreen(gameManager));

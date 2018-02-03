@@ -12,8 +12,8 @@ public class Cannonball
     {
         right = position.x > 0;
         this.position = position;
-        this.position.x += right ? 100 : -100;
-        this.speed = 250;
+        this.position.x += right ? 90 : -90;
+        this.speed = 300;
     }
 
     public void update(float delta)
