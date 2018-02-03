@@ -1,16 +1,14 @@
 package org.loomy;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Vector2;
 import org.loomy.job.CannonAmmoJob;
 import org.loomy.job.CannonRamJob;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class JobManager
-{
+public class JobManager {
     private List<Crewman> crewmen;
     private List<JobLocation> jobLocations;
     private Crewman selectedCrewman;
@@ -18,8 +16,7 @@ public class JobManager
     private static final int CREWMAN_SIZE = 64;
     private static final int JOB_LOCATION_SIZE = 48;
 
-    public JobManager()
-    {
+    public JobManager() {
         this.crewmen = new ArrayList<>();
         this.jobLocations = new ArrayList<>();
 
@@ -30,83 +27,80 @@ public class JobManager
         jobLocations.add(new JobLocation(0, -275, new CannonRamJob()));
 
         crewmen.add(new Crewman(0, -300));
+        crewmen.add(new Crewman(20, 130));
     }
 
-    public void assignJob(Crewman crewman, JobLocation jobLocation)
-    {
+    public void assignJob(Crewman crewman, JobLocation jobLocation) {
         jobLocation.assign(crewman);
     }
 
-    public boolean canDoJob(Crewman crewman, JobLocation jobLocation)
-    {
-        if(hasJob(crewman))
+    public boolean canDoJob(Crewman crewman, JobLocation jobLocation) {
+        if (hasJob(crewman))
             return false;
 
-        if(!jobLocation.isAvailable())
+        if (!jobLocation.isAvailable())
             return false;
 
-        if(jobLocation.getJob().requiresEmptyHands() && !crewman.isEmptyHanded())
+        if (jobLocation.getJob().requiresEmptyHands() && !crewman.isEmptyHanded())
             return false;
 
         return jobLocation.getJob().requiresItem() == crewman.getItem();
     }
 
-    public void update(float delta)
-    {
-        for(Crewman c : crewmen)
+    public void update(float delta) {
+        for (Crewman c : crewmen)
             c.update(delta);
 
-        for(JobLocation jl : jobLocations)
+        for (JobLocation jl : jobLocations)
             jl.update(delta);
     }
 
-    public List<Crewman> getCrewmen() { return crewmen; }
-    public List<JobLocation> getJobLocations() { return jobLocations; }
-    public Crewman getSelectedCrewman() { return selectedCrewman; }
+    public List<Crewman> getCrewmen() {
+        return crewmen;
+    }
 
-    public boolean processClick(float x, float y, int button)
-    {
+    public List<JobLocation> getJobLocations() {
+        return jobLocations;
+    }
+
+    public Crewman getSelectedCrewman() {
+        return selectedCrewman;
+    }
+
+    public boolean processClick(float x, float y, int button) {
         System.out.println("Click at " + x + " " + y);
-        if(button == Input.Buttons.LEFT)
-        {
-            if(selectedCrewman == null)
-            {
-                for(Crewman c : crewmen)
-                {
-                    float cx = c.getX();
-                    float cy = c.getY();
-                    float size = CREWMAN_SIZE;
+        if (button == Input.Buttons.LEFT) {
 
-                    if(MathUtil.isInside(x, y,
-                    cx - size/2, cy - size/2,
-                    cx + size/2, cy + size/2))
-                    {
-                        selectedCrewman = c;
-                        System.out.println("Selected crew man!");
-                        return true;
-                    }
+            for (Crewman c : crewmen) {
+                float cx = c.getX();
+                float cy = c.getY();
+                float size = CREWMAN_SIZE;
+
+                if (MathUtil.isInside(x, y,
+                        cx - size / 2, cy - size / 2,
+                        cx + size / 2, cy + size / 2)) {
+                    selectedCrewman = c;
+                    System.out.println("Selected crew man!");
+                    return true;
                 }
             }
-        }else if(button == Input.Buttons.RIGHT)
-        {
-            if(selectedCrewman != null)
-            {
-                for(JobLocation jl : jobLocations)
-                {
+
+        } else if (button == Input.Buttons.RIGHT) {
+            if (selectedCrewman != null) {
+                for (JobLocation jl : jobLocations) {
                     float jx = jl.getX();
                     float jy = jl.getY();
                     float size = JOB_LOCATION_SIZE;
 
-                    if(MathUtil.isInside(x, y,
-                            jx - size/2, jy - size/2,
-                            jx + size/2, jy + size/2))
-                    {
+                    if (MathUtil.isInside(x, y,
+                            jx - size / 2, jy - size / 2,
+                            jx + size / 2, jy + size / 2)) {
 
-                        if(canDoJob(selectedCrewman, jl))
-                        {
+                        if (canDoJob(selectedCrewman, jl)) {
                             assignJob(selectedCrewman, jl);
                             System.out.println("Crewman now has a job!");
-                        }else{
+                            selectedCrewman.setTarget(jl);
+                        } else {
                             System.out.println("Failed to assign job!");
                         }
 
@@ -120,10 +114,9 @@ public class JobManager
         return false;
     }
 
-    public boolean hasJob(Crewman crewman)
-    {
-        for(JobLocation jl : jobLocations)
-            if(jl.getCrewman() == crewman)
+    public boolean hasJob(Crewman crewman) {
+        for (JobLocation jl : jobLocations)
+            if (jl.getCrewman() == crewman)
                 return true;
 
         return false;

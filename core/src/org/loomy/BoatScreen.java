@@ -10,11 +10,7 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.utils.viewport.Viewport;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.loomy.GameManager.HEIGHT;
 import static org.loomy.GameManager.WIDTH;
@@ -51,10 +47,26 @@ public class BoatScreen extends StageScreen{
         batch.draw(txtBoat, -txtBoat.getWidth()/2, -txtBoat.getHeight()/2);
 
         Texture txtJobLocation = assetManager.get("job-location.png", Texture.class);
+        Texture txtJobLocationProgress = assetManager.get("job-location-progress.png", Texture.class);
+        Texture txtJobLocationFinished = assetManager.get("job-location-finished.png", Texture.class);
+
         for(JobLocation jl : jobManager.getJobLocations())
         {
-            batch.draw(txtJobLocation, jl.getX() - txtJobLocation.getWidth()/2,
-                    jl.getY() - txtJobLocation.getHeight()/2);
+            Texture txtJobState = null;
+            switch (jl.getJobState()) {
+                case OPEN:
+                    txtJobState = txtJobLocation;
+                    break;
+                case PROGRESS:
+                    txtJobState = txtJobLocationProgress;
+                    break;
+                case FINISHED:
+                    txtJobState = txtJobLocationFinished;
+                    break;
+            }
+
+            batch.draw(txtJobState, jl.getX() - txtJobState.getWidth()/2,
+                    jl.getY() - txtJobState.getHeight()/2);
         }
 
         Crewman selectedCrewman = jobManager.getSelectedCrewman();
@@ -72,7 +84,7 @@ public class BoatScreen extends StageScreen{
         for(Crewman c : jobManager.getCrewmen())
             batch.draw(trCrewman, c.getX() - trCrewman.getRegionWidth()/2, c.getY() - trCrewman.getRegionHeight()/2,
                     trCrewman.getRegionWidth()/2, trCrewman.getRegionHeight()/2,
-                    txtCrewman.getWidth(), txtCrewman.getHeight(), 1, 1, c.getRotation());
+                    txtCrewman.getWidth(), txtCrewman.getHeight(), 1, 1, c.getDirection().angle());
 
         batch.end();
         super.render(delta);
