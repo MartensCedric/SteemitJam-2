@@ -42,6 +42,9 @@ public class JobLocation
                 if(getJob() instanceof CannonFireJob)
                 {
                     BoatScreen.cannonballs.add(new Cannonball(position.cpy()));
+                }else if(getJob() instanceof ClimbMastJob)
+                {
+                    BoatScreen.crewmanOnMast = crewman;
                 }
             }
         });

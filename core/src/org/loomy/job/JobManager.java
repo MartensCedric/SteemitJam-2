@@ -19,7 +19,8 @@ public class JobManager {
         this.crewmen = new ArrayList<>();
         this.jobLocations = new ArrayList<>();
 
-        jobLocations.add(new JobLocation(0, 0, new Job[]{new TakeRammerJob(), new DepositRammerJob()}));
+        jobLocations.add(new JobLocation(0, 0, new ClimbMastJob()));
+        jobLocations.add(new JobLocation(0, -100, new Job[]{new TakeRammerJob(), new DepositRammerJob()}));
         jobLocations.add(new JobLocation(110, -100, new Job[]{new CannonFillJob(), new CannonRamJob(), new CannonFireJob()}));
         jobLocations.add(new JobLocation(-110, -100, new Job[]{new CannonFillJob(), new CannonRamJob(), new CannonFireJob()}));
         jobLocations.add(new JobLocation(-110, -160, new CannonAmmoJob()));

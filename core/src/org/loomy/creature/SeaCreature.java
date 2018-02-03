@@ -6,6 +6,7 @@ import org.loomy.BoatScreen;
 import org.loomy.Cannonball;
 import org.loomy.MathUtil;
 
+import static org.loomy.BoatScreen.BORDER_AT;
 import static org.loomy.BoatScreen.cannonballs;
 
 public abstract class SeaCreature
@@ -22,7 +23,7 @@ public abstract class SeaCreature
     public SeaCreature()
     {
         right = MathUtils.randomBoolean();
-        position = new Vector2(right ? -3_600 : 3_600, 0);
+        position = new Vector2(right ? -BORDER_AT - 50 : BORDER_AT + 50, 0);
     }
 
     public void update(float delta)

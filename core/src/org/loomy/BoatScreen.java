@@ -42,8 +42,11 @@ public class BoatScreen extends StageScreen{
     private TextButton txtToggleSpyglass;
 
     public static List<Cannonball> cannonballs; //game jam !! hehe
+    public static Crewman crewmanOnMast = null;
+
     public static final float CANNONBALL_SIZE = 32;
     private static final float CREATURE_SIZE_MUL = 15;
+    public static final float BORDER_AT = 2_700;
     private List<SeaCreature> seaCreatures;
     private int totalCreatures = 0;
     private float deltaSinceStart = 0;
@@ -52,6 +55,7 @@ public class BoatScreen extends StageScreen{
 
     public BoatScreen(GameManager gameManager) {
         this.gameManager = gameManager;
+        crewmanOnMast = null;
         this.assetManager = gameManager.assetManager;
         this.worldCamera = new OrthographicCamera(WIDTH, HEIGHT);
         this.cannonballs = new ArrayList<>();
@@ -88,22 +92,31 @@ public class BoatScreen extends StageScreen{
         Gdx.gl.glClearColor(0f, 149f/255f, 233f/255f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
+        txtToggleSpyglass.setVisible(crewmanOnMast != null);
+
         updateCreatureWave();
         jobManager.update(delta);
         for(int i = 0; i < cannonballs.size(); i++)
         {
             Cannonball cannonball = cannonballs.get(i);
             cannonball.update(delta);
-            if(cannonball.getPosition().x > 3_500 || cannonball.getPosition().x < -3_500)
+            if(cannonball.getPosition().x > BORDER_AT || cannonball.getPosition().x < -BORDER_AT)
             {
                 cannonballs.remove(i);
                 i--;
             }
         }
 
-        for(SeaCreature s : seaCreatures)
+        for(int i = 0; i < seaCreatures.size(); i++)
         {
+            SeaCreature s = seaCreatures.get(i);
             s.update(delta);
+
+            if(s.isDead())
+            {
+                seaCreatures.remove(i);
+                i--;
+            }
         }
 
         batch.setProjectionMatrix(worldCamera.combined);
@@ -116,7 +129,6 @@ public class BoatScreen extends StageScreen{
             batch.draw(txtCannonball, c.getPosition().x - txtCannonball.getWidth()/2,
                     c.getPosition().y - txtCannonball.getHeight()/2);
 
-
         Texture txtKraken = assetManager.get("kraken.png", Texture.class);
         Texture txtSeaSerpent = assetManager.get("sea-serpent.png", Texture.class);
 
@@ -124,14 +136,25 @@ public class BoatScreen extends StageScreen{
         {
             if(s instanceof Kraken)
             {
-                batch.draw(txtKraken, s.getX() - txtKraken.getWidth() * CREATURE_SIZE_MUL/2,
+                batch.draw(txtKraken,
+                        s.getX() - txtKraken.getWidth() * CREATURE_SIZE_MUL/2,
                         s.getY() - txtKraken.getHeight() * CREATURE_SIZE_MUL/2,
-                        txtKraken.getWidth() * CREATURE_SIZE_MUL, txtKraken.getHeight() * CREATURE_SIZE_MUL);
+                        0, 0,
+                        txtKraken.getWidth() * CREATURE_SIZE_MUL,
+                        txtKraken.getHeight() * CREATURE_SIZE_MUL, 1, 1, 0, 0, 0,
+                        txtKraken.getWidth(),
+                        txtKraken.getHeight(),
+                        s.isFacingRight(), false);
+
             }else if(s instanceof SeaSerpent)
             {
-                batch.draw(txtSeaSerpent, s.getX() - txtSeaSerpent.getWidth() * CREATURE_SIZE_MUL/2
-                        , s.getY() - txtSeaSerpent.getHeight()* CREATURE_SIZE_MUL/2,
-                        txtSeaSerpent.getWidth() * CREATURE_SIZE_MUL, txtSeaSerpent.getHeight() * CREATURE_SIZE_MUL);
+                batch.draw(txtSeaSerpent,
+                        s.getX() - txtSeaSerpent.getWidth() * CREATURE_SIZE_MUL/2,
+                        s.getY() - txtSeaSerpent.getHeight()* CREATURE_SIZE_MUL/2,
+                        0, 0,
+                        txtSeaSerpent.getWidth() * CREATURE_SIZE_MUL,
+                        txtSeaSerpent.getHeight() * CREATURE_SIZE_MUL, 1, 1, 0, 0, 0,
+                        txtSeaSerpent.getWidth(), txtSeaSerpent.getHeight(), s.isFacingRight(), false);
             }
         }
 
@@ -186,22 +209,25 @@ public class BoatScreen extends StageScreen{
 
         for(Crewman c : jobManager.getCrewmen())
         {
-            TextureRegion txtitem = null;
-            switch (c.getItem()) {
-                case NO_ITEM:
-                    txtitem = new TextureRegion(txtCrewman);
-                    break;
-                case CANNONBALL:
-                    txtitem = new TextureRegion(txtCrewmanCannonball);
-                    break;
-                case RAMMER:
-                    txtitem = new TextureRegion(txtCrewmanRammer);
-                    break;
-            }
+            if(c != crewmanOnMast)
+            {
+                TextureRegion txtitem = null;
+                switch (c.getItem()) {
+                    case NO_ITEM:
+                        txtitem = new TextureRegion(txtCrewman);
+                        break;
+                    case CANNONBALL:
+                        txtitem = new TextureRegion(txtCrewmanCannonball);
+                        break;
+                    case RAMMER:
+                        txtitem = new TextureRegion(txtCrewmanRammer);
+                        break;
+                }
 
-            batch.draw(txtitem, c.getX() - txtitem.getRegionWidth()/2, c.getY() - txtitem.getRegionHeight()/2,
-                    txtitem.getRegionWidth()/2, txtitem.getRegionHeight()/2,
-                    txtCrewman.getWidth(), txtCrewman.getHeight(), 1, 1, c.getDirection().angle());
+                batch.draw(txtitem, c.getX() - txtitem.getRegionWidth()/2, c.getY() - txtitem.getRegionHeight()/2,
+                        txtitem.getRegionWidth()/2, txtitem.getRegionHeight()/2,
+                        txtCrewman.getWidth(), txtCrewman.getHeight(), 1, 1, c.getDirection().angle());
+            }
         }
 
 
@@ -229,6 +255,12 @@ public class BoatScreen extends StageScreen{
         batch.setProjectionMatrix(worldCamera.combined);
         Texture txtMast = assetManager.get("mast.png", Texture.class);
         batch.draw(txtMast, -txtBoat.getWidth()/2, -txtBoat.getHeight()/2);
+        if(crewmanOnMast != null)
+        {
+            Texture txtCrewmanOnMast = assetManager.get("crewman-spyglass.png", Texture.class);
+            batch.draw(txtCrewmanOnMast, 0 - txtCrewmanOnMast.getWidth()/2, 50 - txtCrewmanOnMast.getHeight()/2);
+        }
+
         batch.end();
         super.render(delta);
     }

@@ -10,6 +10,7 @@ public class DesktopLauncher {
 		config.width = 700;
 		config.height = 700;
 		config.resizable = false;
+		config.title = "Sailing on the Seven Seas";
 		new LwjglApplication(new SteemitJam(), config);
 	}
 }
