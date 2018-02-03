@@ -1,6 +1,7 @@
 package org.loomy;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -8,7 +9,9 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.utils.viewport.Viewport;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,8 +34,7 @@ public class BoatScreen extends StageScreen{
         this.worldCamera = new OrthographicCamera(WIDTH, HEIGHT);
         this.batch = new SpriteBatch();
         this.jobManager = new JobManager();
-
-
+        getInputMultiplexer().addProcessor(inputProcessor);
     }
 
     @Override
@@ -40,6 +42,9 @@ public class BoatScreen extends StageScreen{
     {
         Gdx.gl.glClearColor(0, 0, 1, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
+        jobManager.update(delta);
+
         batch.setProjectionMatrix(worldCamera.combined);
         batch.begin();
         Texture txtBoat = assetManager.get("boat.png", Texture.class);
@@ -92,4 +97,51 @@ public class BoatScreen extends StageScreen{
     public void dispose() {
 
     }
+
+    private InputProcessor inputProcessor = new InputProcessor() {
+        @Override
+        public boolean keyDown(int keycode) {
+            return false;
+        }
+
+        @Override
+        public boolean keyUp(int keycode) {
+            return false;
+        }
+
+        @Override
+        public boolean keyTyped(char character) {
+            return false;
+        }
+
+        @Override
+        public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+            return false;
+        }
+
+        @Override
+        public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+
+            Viewport viewPort = getStage().getViewport();
+            Vector3 pos = worldCamera.unproject(new Vector3(screenX,screenY,0),
+                    viewPort.getScreenX(), viewPort.getScreenY(),
+                    viewPort.getScreenWidth(), viewPort.getScreenHeight());
+            return jobManager.processClick(pos.x, pos.y, button);
+        }
+
+        @Override
+        public boolean touchDragged(int screenX, int screenY, int pointer) {
+            return false;
+        }
+
+        @Override
+        public boolean mouseMoved(int screenX, int screenY) {
+            return false;
+        }
+
+        @Override
+        public boolean scrolled(int amount) {
+            return false;
+        }
+    };
 }

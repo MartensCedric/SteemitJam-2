@@ -28,4 +28,8 @@ public class Crewman
 
     public float getX() { return position.x; }
     public float getY() { return position.y; }
+
+    public Item getItem() {
+        return item;
+    }
 }

@@ -6,4 +6,5 @@ public abstract class Job
     public abstract void resetJob();
     public abstract void updateJob(float delta);
     public abstract Item requiresItem();
+    public abstract boolean requiresEmptyHands();
 }

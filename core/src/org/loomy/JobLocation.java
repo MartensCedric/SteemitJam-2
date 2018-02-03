@@ -19,6 +19,8 @@ public class JobLocation
 
     public void update(float delta) {}
 
+    public Job getJob() { return job; }
+
     public float getX() { return position.x; }
     public float getY() { return position.y; }
 }

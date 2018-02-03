@@ -2,6 +2,7 @@ package org.loomy;
 
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -16,10 +17,13 @@ import static org.loomy.GameManager.WIDTH;
 public abstract class StageScreen implements Screen
 {
     private Stage stage;
+    private InputMultiplexer inputMultiplexer;
 
     public StageScreen() {
+        this.inputMultiplexer = new InputMultiplexer();
         stage = new Stage(new StretchViewport(WIDTH, HEIGHT));
-        Gdx.input.setInputProcessor(getStage());
+        inputMultiplexer.addProcessor(getStage());
+        Gdx.input.setInputProcessor(inputMultiplexer);
     }
 
     @Override
@@ -40,10 +44,12 @@ public abstract class StageScreen implements Screen
 
     @Override
     public void show() {
-        Gdx.input.setInputProcessor(getStage());
+        Gdx.input.setInputProcessor(inputMultiplexer);
     }
 
     public OrthographicCamera getCamera() {
         return (OrthographicCamera) stage.getCamera();
     }
+
+    public InputMultiplexer getInputMultiplexer() { return inputMultiplexer; }
 }
