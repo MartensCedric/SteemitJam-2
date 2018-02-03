@@ -11,8 +11,15 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import org.loomy.creature.Kraken;
+import org.loomy.creature.SeaCreature;
+import org.loomy.creature.SeaSerpent;
 import org.loomy.job.Job;
 import org.loomy.job.JobLocation;
 import org.loomy.job.JobManager;
@@ -22,6 +29,7 @@ import java.util.List;
 
 import static org.loomy.GameManager.HEIGHT;
 import static org.loomy.GameManager.WIDTH;
+import static org.loomy.GameManager.getDefaultSkin;
 
 public class BoatScreen extends StageScreen{
 
@@ -30,8 +38,15 @@ public class BoatScreen extends StageScreen{
     private Batch batch;
     private OrthographicCamera worldCamera;
     private ShapeRenderer shapeRenderer;
+    private boolean spyglassMode = true;
+    private TextButton txtToggleSpyglass;
 
     public static List<Cannonball> cannonballs; //game jam !! hehe
+    public static final float CANNONBALL_SIZE = 32;
+    private static final float CREATURE_SIZE_MUL = 15;
+    private List<SeaCreature> seaCreatures;
+    private int totalCreatures = 0;
+    private float deltaSinceStart = 0;
 
     private JobManager jobManager;
 
@@ -40,22 +55,56 @@ public class BoatScreen extends StageScreen{
         this.assetManager = gameManager.assetManager;
         this.worldCamera = new OrthographicCamera(WIDTH, HEIGHT);
         this.cannonballs = new ArrayList<>();
+        this.seaCreatures = new ArrayList<>();
         this.batch = new SpriteBatch();
         this.jobManager = new JobManager();
         getInputMultiplexer().addProcessor(inputProcessor);
         this.shapeRenderer = new ShapeRenderer();
         this.shapeRenderer.setAutoShapeType(true);
+        setSpyglassMode(false);
+        this.txtToggleSpyglass = new TextButton("Toggle Spyglass Mode", getDefaultSkin());
+        this.txtToggleSpyglass.setX(WIDTH - 200);
+        this.txtToggleSpyglass.setY(20);
+        getStage().addActor(txtToggleSpyglass);
+        this.txtToggleSpyglass.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                setSpyglassMode(!spyglassMode);
+            }
+        });
+    }
+
+    public void setSpyglassMode(boolean spyglassMode)
+    {
+        this.spyglassMode = spyglassMode;
+        worldCamera.zoom = spyglassMode ? 7.5f : 1;
+        worldCamera.update();
     }
 
     @Override
     public void render(float delta)
     {
+        deltaSinceStart += delta;
         Gdx.gl.glClearColor(0f, 149f/255f, 233f/255f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
+        updateCreatureWave();
         jobManager.update(delta);
-        for(Cannonball cannonball : cannonballs)
+        for(int i = 0; i < cannonballs.size(); i++)
+        {
+            Cannonball cannonball = cannonballs.get(i);
             cannonball.update(delta);
+            if(cannonball.getPosition().x > 3_500 || cannonball.getPosition().x < -3_500)
+            {
+                cannonballs.remove(i);
+                i--;
+            }
+        }
+
+        for(SeaCreature s : seaCreatures)
+        {
+            s.update(delta);
+        }
 
         batch.setProjectionMatrix(worldCamera.combined);
         batch.begin();
@@ -66,6 +115,25 @@ public class BoatScreen extends StageScreen{
         for(Cannonball c : cannonballs)
             batch.draw(txtCannonball, c.getPosition().x - txtCannonball.getWidth()/2,
                     c.getPosition().y - txtCannonball.getHeight()/2);
+
+
+        Texture txtKraken = assetManager.get("kraken.png", Texture.class);
+        Texture txtSeaSerpent = assetManager.get("sea-serpent.png", Texture.class);
+
+        for(SeaCreature s : seaCreatures)
+        {
+            if(s instanceof Kraken)
+            {
+                batch.draw(txtKraken, s.getX() - txtKraken.getWidth() * CREATURE_SIZE_MUL/2,
+                        s.getY() - txtKraken.getHeight() * CREATURE_SIZE_MUL/2,
+                        txtKraken.getWidth() * CREATURE_SIZE_MUL, txtKraken.getHeight() * CREATURE_SIZE_MUL);
+            }else if(s instanceof SeaSerpent)
+            {
+                batch.draw(txtSeaSerpent, s.getX() - txtSeaSerpent.getWidth() * CREATURE_SIZE_MUL/2
+                        , s.getY() - txtSeaSerpent.getHeight()* CREATURE_SIZE_MUL/2,
+                        txtSeaSerpent.getWidth() * CREATURE_SIZE_MUL, txtSeaSerpent.getHeight() * CREATURE_SIZE_MUL);
+            }
+        }
 
         Texture txtWheel = assetManager.get("wheel.png", Texture.class);
         batch.draw(txtWheel, 0 - txtWheel.getWidth()/2, -225 - txtWheel.getHeight()/2);
@@ -163,6 +231,17 @@ public class BoatScreen extends StageScreen{
         batch.draw(txtMast, -txtBoat.getWidth()/2, -txtBoat.getHeight()/2);
         batch.end();
         super.render(delta);
+    }
+
+    public void updateCreatureWave()
+    {
+        int creatureLimit = (int) (1 + (Math.pow(deltaSinceStart, 1.1)/20));
+        if(totalCreatures < creatureLimit)
+        {
+            boolean kraken = MathUtils.randomBoolean(0.25f);
+            seaCreatures.add(kraken ? new Kraken() : new SeaSerpent());
+            totalCreatures++;
+        }
     }
 
     @Override

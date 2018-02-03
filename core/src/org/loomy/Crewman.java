@@ -20,7 +20,7 @@ public class Crewman
     {
         position = new Vector2(x, y);
         direction = new Vector2();
-        speed = 55f;
+        speed = 75f;
     }
 
     public void update(float delta) {

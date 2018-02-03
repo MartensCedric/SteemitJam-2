@@ -12,6 +12,7 @@ public class SteemitJam extends Game {
 	public void create () {
 		this.gameManager = new GameManager();
 		AssetManager assetManager = new AssetManager();
+
 		assetManager.load("job-location.png", Texture.class);
 		assetManager.load("job-location-finished.png", Texture.class);
 		assetManager.load("job-location-progress.png", Texture.class);
@@ -25,6 +26,9 @@ public class SteemitJam extends Game {
 		assetManager.load("cannon.png", Texture.class);
 		assetManager.load("mast.png", Texture.class);
 		assetManager.load("wheel.png", Texture.class);
+		assetManager.load("kraken.png", Texture.class);
+		assetManager.load("sea-serpent.png", Texture.class);
+
 		assetManager.finishLoading();
 		this.gameManager.assetManager = assetManager;
 		setScreen(new BoatScreen(gameManager));
