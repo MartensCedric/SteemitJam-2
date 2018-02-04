@@ -1,14 +1,13 @@
 package org.loomy.creature;
 
-import com.badlogic.gdx.Game;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
-import org.loomy.BoatScreen;
 import org.loomy.Cannonball;
 import org.loomy.GameManager;
 import org.loomy.MathUtil;
 
 import static org.loomy.BoatScreen.BORDER_AT;
+import static org.loomy.BoatScreen.boatX;
 import static org.loomy.BoatScreen.cannonballs;
 
 public abstract class SeaCreature
@@ -25,7 +24,7 @@ public abstract class SeaCreature
     public SeaCreature()
     {
         right = MathUtils.randomBoolean();
-        position = new Vector2(right ? -BORDER_AT - 50 : BORDER_AT + 50, 0);
+        position = new Vector2((right ? -BORDER_AT - 50 : BORDER_AT + 50) + boatX, 0);
     }
 
     public void update(float delta)

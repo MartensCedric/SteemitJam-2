@@ -44,6 +44,8 @@ public class BoatScreen extends StageScreen
 
     private TextButton txtToggleSpyglass;
     private Slider sldSteering;
+
+    private Label lblSurvivalTime;
     private Label lblPort;
     private Label lblStarboard;
 
@@ -60,7 +62,8 @@ public class BoatScreen extends StageScreen
     public static float shakeLeft = 0;
     private float defaultCamX = 0;
     private float defaultCamY = 0;
-    private float boatX;
+    public static float boatX;
+    public static float steeringValue = 0;
 
     private ShaderProgram waterShader;
     private ShaderProgram fogShader;
@@ -72,7 +75,7 @@ public class BoatScreen extends StageScreen
     private List<SeaCreature> seaCreatures;
     private int totalCreatures;
     private float deltaSinceStart;
-    private final float DEATH_FADE = 3f;
+    private final float DEATH_FADE = 6f;
     private float deathFade;
 
     private boolean death;
@@ -151,6 +154,14 @@ public class BoatScreen extends StageScreen
                     if(Math.abs(s.getX()) < 220 + 32 * CREATURE_SIZE_MUL/2.0)
                     {
                         death = true;
+                        lblSurvivalTime = new Label(String.format("You survived %.0f seconds sailing in the seven seas", deltaSinceStart), getDefaultSkin());
+                        lblSurvivalTime.setX(WIDTH/2 - 200);
+                        lblSurvivalTime.setY(HEIGHT/2);
+                        lblPort.setVisible(false);
+                        lblStarboard.setVisible(false);
+                        sldSteering.setVisible(false);
+                        txtToggleSpyglass.setVisible(false);
+                        getStage().addActor(lblSurvivalTime);
                     }
                 }
             }
@@ -203,7 +214,7 @@ public class BoatScreen extends StageScreen
             {
                 Texture krakenToDraw = s.getHitpoints() == 2 ? txtKraken : txtKraken2;
                 batch.draw(krakenToDraw,
-                        s.getX() - krakenToDraw.getWidth() * CREATURE_SIZE_MUL/2,
+                        -boatX + s.getX() - krakenToDraw.getWidth() * CREATURE_SIZE_MUL/2,
                         s.getY() - krakenToDraw.getHeight() * CREATURE_SIZE_MUL/2,
                         0, 0,
                         krakenToDraw.getWidth() * CREATURE_SIZE_MUL,
@@ -215,7 +226,7 @@ public class BoatScreen extends StageScreen
             }else if(s instanceof SeaSerpent)
             {
                 batch.draw(txtSeaSerpent,
-                        s.getX() - txtSeaSerpent.getWidth() * CREATURE_SIZE_MUL/2,
+                        -boatX + s.getX() - txtSeaSerpent.getWidth() * CREATURE_SIZE_MUL/2,
                         s.getY() - txtSeaSerpent.getHeight()* CREATURE_SIZE_MUL/2,
                         0, 0,
                         txtSeaSerpent.getWidth() * CREATURE_SIZE_MUL,
@@ -456,6 +467,7 @@ public class BoatScreen extends StageScreen
 
     public void init()
     {
+        getStage().clear();
         crewmanOnMast = null;
         crewmanOnWheel = null;
         this.assetManager = gameManager.assetManager;
@@ -542,5 +554,7 @@ public class BoatScreen extends StageScreen
         this.lblStarboard.setX(sldSteering.getX() + sldSteering.getWidth() - 50);
         this.lblStarboard.setY(sldSteering.getY() + 35);
         getStage().addActor(lblStarboard);
+
+        steeringValue = 0;
     }
 }
