@@ -4,7 +4,6 @@ import org.loomy.Item;
 
 public class CannonRamJob extends Job
 {
-
     @Override
     public Item requiresItem() {
         return Item.RAMMER;

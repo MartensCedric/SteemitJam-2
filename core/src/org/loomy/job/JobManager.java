@@ -27,7 +27,7 @@ public class JobManager {
         jobLocations.add(new JobLocation(110, -100, new Job[]{new CannonFillJob(), new CannonRamJob(), new CannonFireJob()}));
         jobLocations.add(new JobLocation(-110, -100, new Job[]{new CannonFillJob(), new CannonRamJob(), new CannonFireJob()}));
         jobLocations.add(new JobLocation(-110, -160, new CannonAmmoJob()));
-        jobLocations.add(new JobLocation(0, -275, new CannonAmmoJob()));
+        jobLocations.add(new JobLocation(0, -275, new SteerShipJob()));
 
         crewmen.add(new Crewman(0, -300));
         crewmen.add(new Crewman(20, 130));
@@ -124,7 +124,10 @@ public class JobManager {
                             });
 
                             if(selectedCrewman == crewmanOnMast)
+                            {
                                 crewmanOnMast = null;
+                                BoatScreen.spyglassMode = false;
+                            }
 
                             assignJob(selectedCrewman, jl);
                             System.out.println("Crewman now has a job!");

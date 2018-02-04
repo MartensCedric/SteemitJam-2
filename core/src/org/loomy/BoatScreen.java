@@ -10,7 +10,6 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.graphics.g3d.particles.influencers.ModelInfluencer;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
@@ -40,11 +39,11 @@ public class BoatScreen extends StageScreen
     private Batch batch;
     private OrthographicCamera worldCamera;
     private ShapeRenderer shapeRenderer;
-    private boolean spyglassMode = true;
     private TextButton txtToggleSpyglass;
 
     public static List<Cannonball> cannonballs; //game jam !! hehe
     public static Crewman crewmanOnMast = null;
+    public static boolean spyglassMode = false;
 
     public static final float CANNONBALL_SIZE = 32;
     private static final float CREATURE_SIZE_MUL = 15;
@@ -61,9 +60,12 @@ public class BoatScreen extends StageScreen
     public static final float MAST_X = 0;
     public static final float MAST_Y = 50;
     private List<SeaCreature> seaCreatures;
-    private int totalCreatures = 0;
-    private float deltaSinceStart = 0;
+    private int totalCreatures;
+    private float deltaSinceStart;
+    private final float DEATH_FADE = 3f;
+    private float deathFade;
 
+    private boolean death;
     private JobManager jobManager;
 
     public static ParticleEffect cannonShot_left;
@@ -73,69 +75,7 @@ public class BoatScreen extends StageScreen
 
     public BoatScreen(GameManager gameManager) {
         this.gameManager = gameManager;
-        crewmanOnMast = null;
-        this.assetManager = gameManager.assetManager;
-        this.worldCamera = new OrthographicCamera(WIDTH, HEIGHT);
-        this.cannonballs = new ArrayList<>();
-        this.seaCreatures = new ArrayList<>();
-        this.batch = new SpriteBatch();
-        this.jobManager = new JobManager();
-        getInputMultiplexer().addProcessor(inputProcessor);
-        this.shapeRenderer = new ShapeRenderer();
-        this.shapeRenderer.setAutoShapeType(true);
-        setSpyglassMode(false);
-        this.txtToggleSpyglass = new TextButton("Toggle Spyglass Mode", getDefaultSkin());
-        this.txtToggleSpyglass.setX(WIDTH - 200);
-        this.txtToggleSpyglass.setY(20);
-        getStage().addActor(txtToggleSpyglass);
-        this.txtToggleSpyglass.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                setSpyglassMode(!spyglassMode);
-            }
-        });
-
-        this.defaultCamX = worldCamera.position.x;
-        this.defaultCamY = worldCamera.position.y;
-
-        String vertexShader = Gdx.files.internal("shader.vs").readString();
-        String fogShaderFS = Gdx.files.internal("fog.fs").readString();
-        String boatShaderFS = Gdx.files.internal("boat.fs").readString();
-        String waterShaderFS = Gdx.files.internal("water.fs").readString();
-
-        fogShader = new ShaderProgram(vertexShader, fogShaderFS);
-        if (!fogShader.isCompiled()) throw new GdxRuntimeException("Couldn't compile shader: " + fogShader.getLog());
-
-        boatShader = new ShaderProgram(vertexShader, boatShaderFS);
-        if (!boatShader.isCompiled()) throw new GdxRuntimeException("Couldn't compile shader: " + boatShader.getLog());
-
-        waterShader = new ShaderProgram(vertexShader, waterShaderFS);
-        if(!waterShader.isCompiled()) throw new GdxRuntimeException("Couldn't compile shader: " + waterShader.getLog());
-
-        Music music = assetManager.get("sevenseasailing.wav", Music.class);
-        music.setLooping(true);
-        music.setVolume(0.02f);
-        music.play();
-
-        this.cannonShot_left = new ParticleEffect();
-        this.cannonShot_left.load(Gdx.files.internal("cannon_left.pr"), Gdx.files.internal(""));
-
-        this.cannonShot_right = new ParticleEffect();
-        this.cannonShot_right.load(Gdx.files.internal("cannon_right.pr"), Gdx.files.internal(""));
-
-        cannonShot_left.setPosition(-200, -100);
-        cannonShot_right.setPosition(200, -100);
-
-        this.pirateSpeak = new Sound[]{
-                assetManager.get("sounds/ahoy.wav", Sound.class),
-                assetManager.get("sounds/arghh.wav", Sound.class),
-                assetManager.get("sounds/ay.wav", Sound.class),
-                assetManager.get("sounds/booty.wav", Sound.class),
-                assetManager.get("sounds/oi.wav", Sound.class),
-                assetManager.get("sounds/rum.wav", Sound.class),
-                assetManager.get("sounds/shark_bait.wav", Sound.class),
-                assetManager.get("sounds/ye.wav", Sound.class)
-        };
+        init();
     }
 
     public static void speak()
@@ -161,48 +101,65 @@ public class BoatScreen extends StageScreen
     @Override
     public void render(float delta)
     {
+
         deltaSinceStart += delta;
+
+
+        if(deathFade <= 0)
+        {
+            init();
+        }
+
         Gdx.gl.glClearColor(0f, 149f/255f, 233f/255f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        txtToggleSpyglass.setVisible(crewmanOnMast != null);
-
-        updateCreatureWave();
-        jobManager.update(delta);
-        for(int i = 0; i < cannonballs.size(); i++)
+        if(!death)
         {
-            Cannonball cannonball = cannonballs.get(i);
-            cannonball.update(delta);
-            if(cannonball.getPosition().x > BORDER_AT || cannonball.getPosition().x < -BORDER_AT)
+            txtToggleSpyglass.setVisible(crewmanOnMast != null);
+
+            updateCreatureWave();
+            jobManager.update(delta);
+            for(int i = 0; i < cannonballs.size(); i++)
             {
-                cannonballs.remove(i);
-                i--;
+                Cannonball cannonball = cannonballs.get(i);
+                cannonball.update(delta);
+                if(cannonball.getPosition().x > BORDER_AT || cannonball.getPosition().x < -BORDER_AT)
+                {
+                    cannonballs.remove(i);
+                    i--;
+                }
             }
-        }
 
-        for(int i = 0; i < seaCreatures.size(); i++)
-        {
-            SeaCreature s = seaCreatures.get(i);
-            s.update(delta);
-
-            if(s.isDead())
+            for(int i = 0; i < seaCreatures.size(); i++)
             {
-                seaCreatures.remove(i);
-                i--;
+                SeaCreature s = seaCreatures.get(i);
+                s.update(delta);
+
+                if(s.isDead())
+                {
+                    seaCreatures.remove(i);
+                    i--;
+                }else{
+                    if(Math.abs(s.getX()) < 220 + 32 * CREATURE_SIZE_MUL/2.0)
+                    {
+                        death = true;
+                    }
+                }
             }
+
+            worldCamera.position.x = defaultCamX;
+            worldCamera.position.y = defaultCamY;
+
+            if(shakeLeft > 0)
+            {
+                screenShake(delta);
+                shakeLeft -= delta;
+            }
+
+            worldCamera.update();
+        }else{
+            deathFade -= delta;
         }
-
-        worldCamera.position.x = defaultCamX;
-        worldCamera.position.y = defaultCamY;
-
-        if(shakeLeft > 0)
-        {
-            screenShake(delta);
-            shakeLeft -= delta;
-        }
-
-        worldCamera.update();
-
 
         batch.begin();
         batch.setProjectionMatrix(getCamera().combined);
@@ -393,6 +350,16 @@ public class BoatScreen extends StageScreen
         }
 
         this.shapeRenderer.end();
+        if(death)
+        {
+            batch.begin();
+            batch.setProjectionMatrix(getCamera().combined);
+            batch.setShader(null);
+            Texture txtDeath = assetManager.get("death-fade.png", Texture.class);
+            batch.setColor(1, 1, 1, 1 - (deathFade/DEATH_FADE));
+            batch.draw(txtDeath, 0, 0);
+            batch.end();
+        }
         super.render(delta);
     }
 
@@ -473,4 +440,76 @@ public class BoatScreen extends StageScreen
             return false;
         }
     };
+
+    public void init()
+    {
+        crewmanOnMast = null;
+        this.assetManager = gameManager.assetManager;
+        this.worldCamera = new OrthographicCamera(WIDTH, HEIGHT);
+        this.cannonballs = new ArrayList<>();
+        this.seaCreatures = new ArrayList<>();
+        this.batch = new SpriteBatch();
+        this.jobManager = new JobManager();
+        getInputMultiplexer().addProcessor(inputProcessor);
+        this.shapeRenderer = new ShapeRenderer();
+        this.shapeRenderer.setAutoShapeType(true);
+        setSpyglassMode(false);
+        this.txtToggleSpyglass = new TextButton("Toggle Spyglass Mode", getDefaultSkin());
+        this.txtToggleSpyglass.setX(WIDTH - 250);
+        this.txtToggleSpyglass.setY(20);
+        getStage().addActor(txtToggleSpyglass);
+        this.txtToggleSpyglass.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                setSpyglassMode(!spyglassMode);
+            }
+        });
+
+        this.defaultCamX = worldCamera.position.x;
+        this.defaultCamY = worldCamera.position.y;
+
+        String vertexShader = Gdx.files.internal("shader.vs").readString();
+        String fogShaderFS = Gdx.files.internal("fog.fs").readString();
+        String boatShaderFS = Gdx.files.internal("boat.fs").readString();
+        String waterShaderFS = Gdx.files.internal("water.fs").readString();
+
+        fogShader = new ShaderProgram(vertexShader, fogShaderFS);
+        if (!fogShader.isCompiled()) throw new GdxRuntimeException("Couldn't compile shader: " + fogShader.getLog());
+
+        boatShader = new ShaderProgram(vertexShader, boatShaderFS);
+        if (!boatShader.isCompiled()) throw new GdxRuntimeException("Couldn't compile shader: " + boatShader.getLog());
+
+        waterShader = new ShaderProgram(vertexShader, waterShaderFS);
+        if(!waterShader.isCompiled()) throw new GdxRuntimeException("Couldn't compile shader: " + waterShader.getLog());
+
+        Music music = assetManager.get("sevenseasailing.wav", Music.class);
+        music.setLooping(true);
+        music.setVolume(0.02f);
+        music.play();
+
+        this.cannonShot_left = new ParticleEffect();
+        this.cannonShot_left.load(Gdx.files.internal("cannon_left.pr"), Gdx.files.internal(""));
+
+        this.cannonShot_right = new ParticleEffect();
+        this.cannonShot_right.load(Gdx.files.internal("cannon_right.pr"), Gdx.files.internal(""));
+
+        cannonShot_left.setPosition(-200, -100);
+        cannonShot_right.setPosition(200, -100);
+
+        this.pirateSpeak = new Sound[]{
+                assetManager.get("sounds/ahoy.wav", Sound.class),
+                assetManager.get("sounds/arghh.wav", Sound.class),
+                assetManager.get("sounds/ay.wav", Sound.class),
+                assetManager.get("sounds/booty.wav", Sound.class),
+                assetManager.get("sounds/oi.wav", Sound.class),
+                assetManager.get("sounds/rum.wav", Sound.class),
+                assetManager.get("sounds/shark_bait.wav", Sound.class),
+                assetManager.get("sounds/ye.wav", Sound.class)
+        };
+
+        deathFade = DEATH_FADE;
+        totalCreatures = 0;
+        deltaSinceStart = 0;
+        death = false;
+    }
 }
