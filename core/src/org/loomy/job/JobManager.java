@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.loomy.BoatScreen.crewmanOnMast;
+import static org.loomy.BoatScreen.crewmanOnWheel;
 
 public class JobManager {
     private List<Crewman> crewmen;
@@ -23,10 +24,11 @@ public class JobManager {
         this.jobLocations = new ArrayList<>();
 
         jobLocations.add(new JobLocation(0, 0, new ClimbMastJob()));
-        jobLocations.add(new JobLocation(0, -100, new Job[]{new TakeRammerJob(), new DepositRammerJob()}));
+        jobLocations.add(new JobLocation(0, -150, new Job[]{new TakeRammerJob(), new DepositRammerJob()}));
         jobLocations.add(new JobLocation(110, -100, new Job[]{new CannonFillJob(), new CannonRamJob(), new CannonFireJob()}));
         jobLocations.add(new JobLocation(-110, -100, new Job[]{new CannonFillJob(), new CannonRamJob(), new CannonFireJob()}));
-        jobLocations.add(new JobLocation(-110, -160, new CannonAmmoJob()));
+        jobLocations.add(new JobLocation(-110, 70, new CannonAmmoJob()));
+        jobLocations.add(new JobLocation(110, 70, new CannonAmmoJob()));
         jobLocations.add(new JobLocation(0, -275, new SteerShipJob()));
 
         crewmen.add(new Crewman(0, -300));
@@ -127,6 +129,9 @@ public class JobManager {
                             {
                                 crewmanOnMast = null;
                                 BoatScreen.spyglassMode = false;
+                            }else if(selectedCrewman == crewmanOnWheel)
+                            {
+                                crewmanOnWheel = null;
                             }
 
                             assignJob(selectedCrewman, jl);

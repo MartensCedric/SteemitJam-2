@@ -15,6 +15,8 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Slider;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.GdxRuntimeException;
@@ -39,10 +41,17 @@ public class BoatScreen extends StageScreen
     private Batch batch;
     private OrthographicCamera worldCamera;
     private ShapeRenderer shapeRenderer;
+
     private TextButton txtToggleSpyglass;
+    private Slider sldSteering;
+    private Label lblPort;
+    private Label lblStarboard;
+
+    private final float BOAT_SPEED = 30.0f;
 
     public static List<Cannonball> cannonballs; //game jam !! hehe
     public static Crewman crewmanOnMast = null;
+    public static Crewman crewmanOnWheel = null;
     public static boolean spyglassMode = false;
 
     public static final float CANNONBALL_SIZE = 32;
@@ -51,6 +60,7 @@ public class BoatScreen extends StageScreen
     public static float shakeLeft = 0;
     private float defaultCamX = 0;
     private float defaultCamY = 0;
+    private float boatX;
 
     private ShaderProgram waterShader;
     private ShaderProgram fogShader;
@@ -101,9 +111,7 @@ public class BoatScreen extends StageScreen
     @Override
     public void render(float delta)
     {
-
         deltaSinceStart += delta;
-
 
         if(deathFade <= 0)
         {
@@ -360,6 +368,11 @@ public class BoatScreen extends StageScreen
             batch.draw(txtDeath, 0, 0);
             batch.end();
         }
+
+        lblStarboard.setVisible(crewmanOnWheel != null);
+        lblPort.setVisible(crewmanOnWheel != null);
+        sldSteering.setVisible(crewmanOnWheel != null);
+
         super.render(delta);
     }
 
@@ -444,6 +457,7 @@ public class BoatScreen extends StageScreen
     public void init()
     {
         crewmanOnMast = null;
+        crewmanOnWheel = null;
         this.assetManager = gameManager.assetManager;
         this.worldCamera = new OrthographicCamera(WIDTH, HEIGHT);
         this.cannonballs = new ArrayList<>();
@@ -497,19 +511,36 @@ public class BoatScreen extends StageScreen
         cannonShot_right.setPosition(200, -100);
 
         this.pirateSpeak = new Sound[]{
-                assetManager.get("sounds/ahoy.wav", Sound.class),
-                assetManager.get("sounds/arghh.wav", Sound.class),
-                assetManager.get("sounds/ay.wav", Sound.class),
-                assetManager.get("sounds/booty.wav", Sound.class),
-                assetManager.get("sounds/oi.wav", Sound.class),
-                assetManager.get("sounds/rum.wav", Sound.class),
-                assetManager.get("sounds/shark_bait.wav", Sound.class),
-                assetManager.get("sounds/ye.wav", Sound.class)
+            assetManager.get("sounds/ahoy.wav", Sound.class),
+            assetManager.get("sounds/arghh.wav", Sound.class),
+            assetManager.get("sounds/ay.wav", Sound.class),
+            assetManager.get("sounds/booty.wav", Sound.class),
+            assetManager.get("sounds/oi.wav", Sound.class),
+            assetManager.get("sounds/rum.wav", Sound.class),
+            assetManager.get("sounds/shark_bait.wav", Sound.class),
+            assetManager.get("sounds/ye.wav", Sound.class)
         };
 
         deathFade = DEATH_FADE;
         totalCreatures = 0;
         deltaSinceStart = 0;
         death = false;
+        boatX = 0;
+        this.sldSteering = new Slider(0, 2, 1f, false, getDefaultSkin());
+        this.sldSteering.setValue(1f);
+        this.sldSteering.setWidth(220);
+        this.sldSteering.setX(50);
+        this.sldSteering.setY(50);
+        getStage().addActor(sldSteering);
+
+        this.lblPort = new Label("Port", getDefaultSkin());
+        this.lblPort.setX(sldSteering.getX() - 20);
+        this.lblPort.setY(sldSteering.getY() + 35);
+        getStage().addActor(lblPort);
+
+        this.lblStarboard = new Label("Starboard", getDefaultSkin());
+        this.lblStarboard.setX(sldSteering.getX() + sldSteering.getWidth() - 50);
+        this.lblStarboard.setY(sldSteering.getY() + 35);
+        getStage().addActor(lblStarboard);
     }
 }

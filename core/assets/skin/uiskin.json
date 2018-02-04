@@ -65,7 +65,7 @@ com.badlogic.gdx.scenes.scene2d.ui.CheckBox$CheckBoxStyle: {
 }
 com.badlogic.gdx.scenes.scene2d.ui.Label$LabelStyle: {
 	default: {
-		font: default-font
+		font: rapscal32
 		fontColor: white
 	}
 }
@@ -107,8 +107,8 @@ com.badlogic.gdx.scenes.scene2d.ui.SelectBox$SelectBoxStyle: {
 }
 com.badlogic.gdx.scenes.scene2d.ui.Slider$SliderStyle: {
 	default-horizontal: {
-		background: default-slider
-		knob: default-slider-knob
+		background: stick
+		knob: whee_standalonel
 	}
 	default-vertical: {
 		background: default-slider

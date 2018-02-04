@@ -51,6 +51,9 @@ public class JobLocation
             }else if(getJob() instanceof ClimbMastJob)
             {
                 BoatScreen.crewmanOnMast = crewman;
+            }else if(getJob() instanceof SteerShipJob)
+            {
+                BoatScreen.crewmanOnWheel = crewman;
             }
         });
     }
