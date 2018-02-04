@@ -150,8 +150,6 @@ public class BoatScreen extends StageScreen
                 SeaCreature s = seaCreatures.get(i);
                 s.update(delta);
 
-                System.out.println("Sea " + s.getX());
-                System.out.println("Boat X " + boatX);
                 if(s.isDead())
                 {
                     seaCreatures.remove(i);
@@ -459,7 +457,7 @@ public class BoatScreen extends StageScreen
 
     public void updateCreatureWave()
     {
-        int creatureLimit = (int) (1 + (Math.pow(deltaSinceStart, 1.2)/100.0));
+        int creatureLimit = (int) (1 + (Math.pow(deltaSinceStart, 1.2)/50.0));
         if(totalCreatures < creatureLimit)
         {
             float enemy = MathUtils.random();
