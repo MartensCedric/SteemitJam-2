@@ -27,6 +27,9 @@ public class SteemitJam extends Game {
 		assetManager.load("selected-crewman.png", Texture.class);
 		assetManager.load("cannon-ball.png", Texture.class);
 		assetManager.load("cannon.png", Texture.class);
+		assetManager.load("rammer.png", Texture.class);
+		assetManager.load("spyglass.png", Texture.class);
+		assetManager.load("ammo.png", Texture.class);
 		assetManager.load("mast.png", Texture.class);
 		assetManager.load("wheel.png", Texture.class);
 		assetManager.load("kraken.png", Texture.class);

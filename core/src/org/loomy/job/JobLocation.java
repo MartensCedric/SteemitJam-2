@@ -1,6 +1,5 @@
 package org.loomy.job;
 
-import com.badlogic.gdx.Game;
 import com.badlogic.gdx.math.Vector2;
 import org.loomy.BoatScreen;
 import org.loomy.Cannonball;

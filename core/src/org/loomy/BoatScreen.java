@@ -23,9 +23,7 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import org.loomy.creature.Kraken;
 import org.loomy.creature.SeaCreature;
 import org.loomy.creature.SeaSerpent;
-import org.loomy.job.Job;
-import org.loomy.job.JobLocation;
-import org.loomy.job.JobManager;
+import org.loomy.job.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -290,6 +288,29 @@ public class BoatScreen extends StageScreen
 
             batch.draw(txtJobState, jl.getX() - txtJobState.getWidth()/2,
                     jl.getY() - txtJobState.getHeight()/2);
+
+            if(jl.getJob() instanceof TakeRammerJob)
+            {
+                batch.setShader(fogShader);
+                Texture txtRammer = assetManager.get("rammer.png", Texture.class);
+                batch.draw(txtRammer, jl.getX() - txtRammer.getWidth()/2, jl.getY() - txtRammer.getHeight()/2);
+                batch.setShader(null);
+            }else if(jl.getJob() instanceof ClimbMastJob)
+            {
+                if(jl.isAvailable())
+                {
+                    batch.setShader(fogShader);
+                    Texture txtSpyglass = assetManager.get("spyglass.png", Texture.class);
+                    batch.draw(txtSpyglass, jl.getX() - txtSpyglass.getWidth()/2, jl.getY() - txtSpyglass.getHeight()/2);
+                    batch.setShader(null);
+                }
+            }else if(jl.getJob() instanceof CannonAmmoJob)
+            {
+                batch.setShader(fogShader);
+                Texture txtAmmo = assetManager.get("ammo.png", Texture.class);
+                batch.draw(txtAmmo, jl.getX() - txtAmmo.getWidth()/2, jl.getY() - txtAmmo.getHeight()/2);
+                batch.setShader(null);
+            }
         }
 
 
