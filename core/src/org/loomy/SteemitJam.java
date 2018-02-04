@@ -2,6 +2,7 @@ package org.loomy;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Texture;
 
 public class SteemitJam extends Game {
@@ -28,9 +29,12 @@ public class SteemitJam extends Game {
 		assetManager.load("mast.png", Texture.class);
 		assetManager.load("wheel.png", Texture.class);
 		assetManager.load("kraken.png", Texture.class);
+		assetManager.load("kraken_2.png", Texture.class);
 		assetManager.load("sea-serpent.png", Texture.class);
 		assetManager.load("fog.png", Texture.class);
 		assetManager.load("water.png", Texture.class);
+
+		assetManager.load("sevenseasailing.wav", Music.class);
 		assetManager.finishLoading();
 		this.gameManager.assetManager = assetManager;
 		setScreen(new BoatScreen(gameManager));

@@ -48,4 +48,5 @@ public abstract class SeaCreature
     public float getY() { return position.y; }
     public float getSize() { return size; }
     public boolean isDead() { return hitpoints <= 0; }
+    public int getHitpoints() { return hitpoints; }
 }

@@ -3,9 +3,10 @@ package org.loomy;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.Batch;
-import com.badlogic.gdx.graphics.g2d.Gdx2DPixmap;
+import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
@@ -27,14 +28,13 @@ import org.loomy.job.JobManager;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.badlogic.gdx.graphics.g2d.Gdx2DPixmap.GDX2D_FORMAT_RGBA8888;
 import static com.badlogic.gdx.math.MathUtils.random;
 import static org.loomy.GameManager.HEIGHT;
 import static org.loomy.GameManager.WIDTH;
 import static org.loomy.GameManager.getDefaultSkin;
 
-public class BoatScreen extends StageScreen{
-
+public class BoatScreen extends StageScreen
+{
     private GameManager gameManager;
     private AssetManager assetManager;
     private Batch batch;
@@ -65,6 +65,9 @@ public class BoatScreen extends StageScreen{
     private float deltaSinceStart = 0;
 
     private JobManager jobManager;
+
+    public static ParticleEffect cannonShot_left;
+    public static ParticleEffect cannonShot_right;
 
     public BoatScreen(GameManager gameManager) {
         this.gameManager = gameManager;
@@ -106,6 +109,19 @@ public class BoatScreen extends StageScreen{
 
         waterShader = new ShaderProgram(vertexShader, waterShaderFS);
         if(!waterShader.isCompiled()) throw new GdxRuntimeException("Couldn't compile shader: " + waterShader.getLog());
+
+        Music music = assetManager.get("sevenseasailing.wav", Music.class);
+        music.setLooping(true);
+        music.play();
+
+        this.cannonShot_left = new ParticleEffect();
+        this.cannonShot_left.load(Gdx.files.internal("cannon_left.pr"), Gdx.files.internal(""));
+
+        this.cannonShot_right = new ParticleEffect();
+        this.cannonShot_right.load(Gdx.files.internal("cannon_right.pr"), Gdx.files.internal(""));
+
+        cannonShot_left.setPosition(-200, -100);
+        cannonShot_right.setPosition(200, -100);
     }
 
     public void screenShake(float delta)
@@ -127,7 +143,6 @@ public class BoatScreen extends StageScreen{
     public void render(float delta)
     {
         deltaSinceStart += delta;
-        //Gdx.gl.glClearColor(1, 0, 0, 1);
         Gdx.gl.glClearColor(0f, 149f/255f, 233f/255f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
@@ -187,21 +202,30 @@ public class BoatScreen extends StageScreen{
             batch.draw(txtCannonball, c.getPosition().x - txtCannonball.getWidth()/2,
                     c.getPosition().y - txtCannonball.getHeight()/2);
 
+
+        batch.setShader(null);
+        cannonShot_left.draw(batch, delta);
+        cannonShot_right.draw(batch, delta);
+
+        batch.setShader(fogShader);
+
         Texture txtKraken = assetManager.get("kraken.png", Texture.class);
+        Texture txtKraken2 = assetManager.get("kraken_2.png", Texture.class);
         Texture txtSeaSerpent = assetManager.get("sea-serpent.png", Texture.class);
 
         for(SeaCreature s : seaCreatures)
         {
             if(s instanceof Kraken)
             {
-                batch.draw(txtKraken,
-                        s.getX() - txtKraken.getWidth() * CREATURE_SIZE_MUL/2,
-                        s.getY() - txtKraken.getHeight() * CREATURE_SIZE_MUL/2,
+                Texture krakenToDraw = s.getHitpoints() == 2 ? txtKraken : txtKraken2;
+                batch.draw(krakenToDraw,
+                        s.getX() - krakenToDraw.getWidth() * CREATURE_SIZE_MUL/2,
+                        s.getY() - krakenToDraw.getHeight() * CREATURE_SIZE_MUL/2,
                         0, 0,
-                        txtKraken.getWidth() * CREATURE_SIZE_MUL,
-                        txtKraken.getHeight() * CREATURE_SIZE_MUL, 1, 1, 0, 0, 0,
-                        txtKraken.getWidth(),
-                        txtKraken.getHeight(),
+                        krakenToDraw.getWidth() * CREATURE_SIZE_MUL,
+                        krakenToDraw.getHeight() * CREATURE_SIZE_MUL, 1, 1, 0, 0, 0,
+                        krakenToDraw.getWidth(),
+                        krakenToDraw.getHeight(),
                         s.isFacingRight(), false);
 
             }else if(s instanceof SeaSerpent)

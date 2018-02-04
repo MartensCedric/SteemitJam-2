@@ -40,6 +40,11 @@ public class JobLocation
             if(getJob() instanceof CannonFireJob)
             {
                 BoatScreen.cannonballs.add(new Cannonball(position.cpy()));
+
+                if(position.x < 0)
+                    BoatScreen.cannonShot_left.start();
+                else BoatScreen.cannonShot_right.start();
+
                 BoatScreen.shakeLeft = BoatScreen.CANNON_SHAKE;
             }else if(getJob() instanceof ClimbMastJob)
             {
