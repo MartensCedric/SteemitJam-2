@@ -8,6 +8,7 @@ import org.loomy.MathUtil;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.loomy.BoatScreen.boatX;
 import static org.loomy.BoatScreen.crewmanOnMast;
 import static org.loomy.BoatScreen.crewmanOnWheel;
 
@@ -79,6 +80,7 @@ public class JobManager {
 
     public boolean processClick(float x, float y, int button) {
         System.out.println("Click at " + x + " " + y);
+        x-= boatX;
         if (button == Input.Buttons.LEFT) {
 
             for (Crewman c : crewmen) {

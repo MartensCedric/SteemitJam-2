@@ -14,10 +14,12 @@ import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Slider;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.viewport.Viewport;
@@ -25,6 +27,8 @@ import org.loomy.creature.Kraken;
 import org.loomy.creature.SeaCreature;
 import org.loomy.creature.SeaSerpent;
 import org.loomy.job.*;
+import org.loomy.obstacle.Obstacle;
+import org.loomy.obstacle.Rock;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,6 +40,7 @@ import static org.loomy.GameManager.getDefaultSkin;
 
 public class BoatScreen extends StageScreen
 {
+    public static final float BOAT_SPEED = 30;
     private GameManager gameManager;
     private AssetManager assetManager;
     private Batch batch;
@@ -49,8 +54,6 @@ public class BoatScreen extends StageScreen
     private Label lblPort;
     private Label lblStarboard;
 
-    private final float BOAT_SPEED = 30.0f;
-
     public static List<Cannonball> cannonballs; //game jam !! hehe
     public static Crewman crewmanOnMast = null;
     public static Crewman crewmanOnWheel = null;
@@ -58,10 +61,9 @@ public class BoatScreen extends StageScreen
 
     public static final float CANNONBALL_SIZE = 32;
     private static final float CREATURE_SIZE_MUL = 15;
+    private static final float OBSTACLE_SIZE_MUL = 15;
     public static final float CANNON_SHAKE = 0.5f;
     public static float shakeLeft = 0;
-    private float defaultCamX = 0;
-    private float defaultCamY = 0;
     public static float boatX;
     public static float steeringValue = 0;
 
@@ -73,6 +75,7 @@ public class BoatScreen extends StageScreen
     public static final float MAST_X = 0;
     public static final float MAST_Y = 50;
     private List<SeaCreature> seaCreatures;
+    private List<Obstacle> obstacles;
     private int totalCreatures;
     private float deltaSinceStart;
     private final float DEATH_FADE = 6f;
@@ -114,6 +117,7 @@ public class BoatScreen extends StageScreen
     @Override
     public void render(float delta)
     {
+        delta *= 2;
         deltaSinceStart += delta;
 
         if(deathFade <= 0)
@@ -126,6 +130,7 @@ public class BoatScreen extends StageScreen
 
         if(!death)
         {
+            boatX += steeringValue * BOAT_SPEED * delta;
             txtToggleSpyglass.setVisible(crewmanOnMast != null);
 
             updateCreatureWave();
@@ -146,12 +151,14 @@ public class BoatScreen extends StageScreen
                 SeaCreature s = seaCreatures.get(i);
                 s.update(delta);
 
+                System.out.println("Sea " + s.getX());
+                System.out.println("Boat X " + boatX);
                 if(s.isDead())
                 {
                     seaCreatures.remove(i);
                     i--;
                 }else{
-                    if(Math.abs(s.getX()) < 220 + 32 * CREATURE_SIZE_MUL/2.0)
+                    if(Math.abs(s.getX()) < boatX + 220 + 32 * CREATURE_SIZE_MUL/2.0)
                     {
                         death = true;
                         lblSurvivalTime = new Label(String.format("You survived %.0f seconds sailing in the seven seas", deltaSinceStart), getDefaultSkin());
@@ -166,8 +173,19 @@ public class BoatScreen extends StageScreen
                 }
             }
 
-            worldCamera.position.x = defaultCamX;
-            worldCamera.position.y = defaultCamY;
+            for(int i = 0; i < obstacles.size(); i++)
+            {
+                Obstacle o = obstacles.get(i);
+                o.update(delta);
+                if(o.getY() < -BORDER_AT)
+                {
+                    obstacles.remove(i);
+                    i--;
+                }
+            }
+
+            worldCamera.position.x = boatX;
+            worldCamera.position.y = 0;
 
             if(shakeLeft > 0)
             {
@@ -189,7 +207,7 @@ public class BoatScreen extends StageScreen
         batch.setProjectionMatrix(worldCamera.combined);
         batch.setShader(boatShader);
         Texture txtBoat = assetManager.get("boat.png", Texture.class);
-        batch.draw(txtBoat, -txtBoat.getWidth()/2, -txtBoat.getHeight()/2);
+        batch.draw(txtBoat, boatX-txtBoat.getWidth()/2, -txtBoat.getHeight()/2);
 
         batch.setShader(fogShader);
         Texture txtCannonball = assetManager.get("cannon-ball.png", Texture.class);
@@ -204,6 +222,24 @@ public class BoatScreen extends StageScreen
 
         batch.setShader(fogShader);
 
+        Texture txtRock = assetManager.get("rocks.png", Texture.class);
+        for(Obstacle o : obstacles)
+        {
+            if(o instanceof Rock)
+            {
+                batch.draw(txtRock,
+                o.getX() - txtRock.getWidth() * OBSTACLE_SIZE_MUL/2,
+                o.getY() - txtRock.getHeight() * OBSTACLE_SIZE_MUL/2,
+                0, 0,
+                txtRock.getWidth() * OBSTACLE_SIZE_MUL,
+                txtRock.getHeight() * OBSTACLE_SIZE_MUL, 1, 1, 0, 0, 0,
+                txtRock.getWidth(),
+                txtRock.getHeight(),
+                false, false);
+            }
+        }
+
+
         Texture txtKraken = assetManager.get("kraken.png", Texture.class);
         Texture txtKraken2 = assetManager.get("kraken_2.png", Texture.class);
         Texture txtSeaSerpent = assetManager.get("sea-serpent.png", Texture.class);
@@ -214,7 +250,7 @@ public class BoatScreen extends StageScreen
             {
                 Texture krakenToDraw = s.getHitpoints() == 2 ? txtKraken : txtKraken2;
                 batch.draw(krakenToDraw,
-                        -boatX + s.getX() - krakenToDraw.getWidth() * CREATURE_SIZE_MUL/2,
+                        s.getX() - krakenToDraw.getWidth() * CREATURE_SIZE_MUL/2,
                         s.getY() - krakenToDraw.getHeight() * CREATURE_SIZE_MUL/2,
                         0, 0,
                         krakenToDraw.getWidth() * CREATURE_SIZE_MUL,
@@ -226,7 +262,7 @@ public class BoatScreen extends StageScreen
             }else if(s instanceof SeaSerpent)
             {
                 batch.draw(txtSeaSerpent,
-                        -boatX + s.getX() - txtSeaSerpent.getWidth() * CREATURE_SIZE_MUL/2,
+                        s.getX() - txtSeaSerpent.getWidth() * CREATURE_SIZE_MUL/2,
                         s.getY() - txtSeaSerpent.getHeight()* CREATURE_SIZE_MUL/2,
                         0, 0,
                         txtSeaSerpent.getWidth() * CREATURE_SIZE_MUL,
@@ -236,7 +272,7 @@ public class BoatScreen extends StageScreen
         }
 
         Texture txtWheel = assetManager.get("wheel.png", Texture.class);
-        batch.draw(txtWheel, 0 - txtWheel.getWidth()/2, -225 - txtWheel.getHeight()/2);
+        batch.draw(txtWheel, boatX - txtWheel.getWidth()/2, -225 - txtWheel.getHeight()/2);
 
         batch.setShader(null);
         Texture txtJobLocation = assetManager.get("job-location.png", Texture.class);
@@ -262,14 +298,14 @@ public class BoatScreen extends StageScreen
                     break;
             }
 
-            batch.draw(txtJobState, jl.getX() - txtJobState.getWidth()/2,
+            batch.draw(txtJobState, boatX + jl.getX() - txtJobState.getWidth()/2,
                     jl.getY() - txtJobState.getHeight()/2);
 
             if(jl.getJob() instanceof TakeRammerJob)
             {
                 batch.setShader(fogShader);
                 Texture txtRammer = assetManager.get("rammer.png", Texture.class);
-                batch.draw(txtRammer, jl.getX() - txtRammer.getWidth()/2, jl.getY() - txtRammer.getHeight()/2);
+                batch.draw(txtRammer, boatX + jl.getX() - txtRammer.getWidth()/2, jl.getY() - txtRammer.getHeight()/2);
                 batch.setShader(null);
             }else if(jl.getJob() instanceof ClimbMastJob)
             {
@@ -277,18 +313,17 @@ public class BoatScreen extends StageScreen
                 {
                     batch.setShader(fogShader);
                     Texture txtSpyglass = assetManager.get("spyglass.png", Texture.class);
-                    batch.draw(txtSpyglass, jl.getX() - txtSpyglass.getWidth()/2, jl.getY() - txtSpyglass.getHeight()/2);
+                    batch.draw(txtSpyglass, boatX + jl.getX() - txtSpyglass.getWidth()/2, jl.getY() - txtSpyglass.getHeight()/2);
                     batch.setShader(null);
                 }
             }else if(jl.getJob() instanceof CannonAmmoJob)
             {
                 batch.setShader(fogShader);
                 Texture txtAmmo = assetManager.get("ammo.png", Texture.class);
-                batch.draw(txtAmmo, jl.getX() - txtAmmo.getWidth()/2, jl.getY() - txtAmmo.getHeight()/2);
+                batch.draw(txtAmmo, boatX + jl.getX() - txtAmmo.getWidth()/2, jl.getY() - txtAmmo.getHeight()/2);
                 batch.setShader(null);
             }
         }
-
 
         Crewman selectedCrewman = jobManager.getSelectedCrewman();
         if(selectedCrewman != null)
@@ -297,14 +332,14 @@ public class BoatScreen extends StageScreen
             float y = selectedCrewman == crewmanOnMast ? MAST_Y : selectedCrewman.getY();
 
             Texture txtSelectedCrewman = assetManager.get("selected-crewman.png", Texture.class);
-            batch.draw(txtSelectedCrewman, x - txtSelectedCrewman.getWidth()/2,
+            batch.draw(txtSelectedCrewman, boatX + x - txtSelectedCrewman.getWidth()/2,
                     y - txtSelectedCrewman.getHeight()/2);
         }
 
         batch.setShader(fogShader);
         Texture txtCannon = assetManager.get("cannon.png", Texture.class);
-        batch.draw(txtCannon, -152 - txtCannon.getWidth()/2, -102 - txtCannon.getHeight()/2);
-        batch.draw(txtCannon, 120, -118, txtCannon.getWidth()/2, txtCannon.getHeight()/2
+        batch.draw(txtCannon, boatX + -152 - txtCannon.getWidth()/2, -102 - txtCannon.getHeight()/2);
+        batch.draw(txtCannon, boatX + 120, -118, txtCannon.getWidth()/2, txtCannon.getHeight()/2
                 , txtCannon.getWidth(), txtCannon.getHeight(), 1, 1, 0, 0, 0,
                 txtCannon.getWidth(), txtCannon.getHeight(), true, false);
 
@@ -330,7 +365,7 @@ public class BoatScreen extends StageScreen
                         break;
                 }
 
-                batch.draw(txtitem, c.getX() - txtitem.getRegionWidth()/2, c.getY() - txtitem.getRegionHeight()/2,
+                batch.draw(txtitem, boatX + c.getX() - txtitem.getRegionWidth()/2, c.getY() - txtitem.getRegionHeight()/2,
                         txtitem.getRegionWidth()/2, txtitem.getRegionHeight()/2,
                         txtCrewman.getWidth(), txtCrewman.getHeight(), 1, 1, c.getDirection().angle());
             }
@@ -338,12 +373,12 @@ public class BoatScreen extends StageScreen
 
         batch.setShader(boatShader);
         Texture txtMast = assetManager.get("mast.png", Texture.class);
-        batch.draw(txtMast, -txtBoat.getWidth()/2, -txtBoat.getHeight()/2);
+        batch.draw(txtMast, boatX-txtBoat.getWidth()/2, -txtBoat.getHeight()/2);
         batch.setShader(fogShader);
         if(crewmanOnMast != null) {
             Texture txtCrewmanOnMast = assetManager.get("crewman-spyglass.png", Texture.class);
             TextureRegion tr = new TextureRegion(txtCrewmanOnMast);
-            batch.draw(tr, MAST_X - tr.getRegionWidth() / 2,
+            batch.draw(tr, boatX + MAST_X - tr.getRegionWidth() / 2,
                     MAST_Y - tr.getRegionHeight() / 2,
                     tr.getRegionWidth() / 2, tr.getRegionHeight() / 2,
                     txtCrewman.getWidth(), txtCrewman.getHeight(), 1, 1, 90);
@@ -361,10 +396,10 @@ public class BoatScreen extends StageScreen
                 float progress = jl.getJob().getProgress();
                 shapeRenderer.set(ShapeRenderer.ShapeType.Filled);
                 shapeRenderer.setColor(loadBg);
-                shapeRenderer.rect(jl.getX() - 32, jl.getY() + 32, 64,12);
+                shapeRenderer.rect(boatX + jl.getX() - 32, jl.getY() + 32, 64,12);
 
                 shapeRenderer.setColor(loadBar);
-                shapeRenderer.rect(jl.getX() - 32, jl.getY() + 32, 64 - 64 * progress, 12);
+                shapeRenderer.rect(boatX + jl.getX() - 32, jl.getY() + 32, 64 - 64 * progress, 12);
             }
         }
 
@@ -384,16 +419,29 @@ public class BoatScreen extends StageScreen
         lblPort.setVisible(crewmanOnWheel != null);
         sldSteering.setVisible(crewmanOnWheel != null);
 
+
+        cannonShot_left.setPosition(boatX - 200, -100);
+        cannonShot_right.setPosition(boatX + 200, -100);
         super.render(delta);
     }
 
     public void updateCreatureWave()
     {
-        int creatureLimit = (int) (1 + (Math.pow(deltaSinceStart, 1.1)/20));
+        int creatureLimit = (int) (1 + (Math.pow(deltaSinceStart, 1.2)/100.0));
         if(totalCreatures < creatureLimit)
         {
-            boolean kraken = MathUtils.randomBoolean(0.25f);
-            seaCreatures.add(kraken ? new Kraken() : new SeaSerpent());
+            float enemy = MathUtils.random();
+
+            if(enemy < 0.2f)
+            {
+                seaCreatures.add(new Kraken());
+            }else if(enemy < 0.7f)
+            {
+                seaCreatures.add(new SeaSerpent());
+            }else{
+                obstacles.add(new Rock());
+            }
+
             totalCreatures++;
         }
     }
@@ -491,8 +539,6 @@ public class BoatScreen extends StageScreen
             }
         });
 
-        this.defaultCamX = worldCamera.position.x;
-        this.defaultCamY = worldCamera.position.y;
 
         String vertexShader = Gdx.files.internal("shader.vs").readString();
         String fogShaderFS = Gdx.files.internal("fog.fs").readString();
@@ -519,9 +565,6 @@ public class BoatScreen extends StageScreen
         this.cannonShot_right = new ParticleEffect();
         this.cannonShot_right.load(Gdx.files.internal("cannon_right.pr"), Gdx.files.internal(""));
 
-        cannonShot_left.setPosition(-200, -100);
-        cannonShot_right.setPosition(200, -100);
-
         this.pirateSpeak = new Sound[]{
             assetManager.get("sounds/ahoy.wav", Sound.class),
             assetManager.get("sounds/arghh.wav", Sound.class),
@@ -543,6 +586,12 @@ public class BoatScreen extends StageScreen
         this.sldSteering.setWidth(220);
         this.sldSteering.setX(50);
         this.sldSteering.setY(50);
+        this.sldSteering.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                steeringValue = sldSteering.getValue() - 1.0f;
+            }
+        });
         getStage().addActor(sldSteering);
 
         this.lblPort = new Label("Port", getDefaultSkin());
@@ -556,5 +605,6 @@ public class BoatScreen extends StageScreen
         getStage().addActor(lblStarboard);
 
         steeringValue = 0;
+        this.obstacles = new ArrayList<>();
     }
 }

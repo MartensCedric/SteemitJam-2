@@ -7,7 +7,7 @@ public class Kraken extends SeaCreature
     {
         super();
         hitpoints = 2;
-        speed = 50;
+        speed = 35;
         size = 48;
     }
 }

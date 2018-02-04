@@ -2,6 +2,8 @@ package org.loomy;
 
 import com.badlogic.gdx.math.Vector2;
 
+import static org.loomy.BoatScreen.boatX;
+
 public class Cannonball
 {
     private Vector2 position;
@@ -10,9 +12,9 @@ public class Cannonball
 
     public Cannonball(Vector2 position)
     {
-        right = position.x > 0;
+        right = position.x > boatX;
         this.position = position;
-        this.position.x += right ? 90 : -90;
+        this.position.x += (right ? 90 : -90) + boatX;
         this.speed = 500;
     }
 
