@@ -3,6 +3,7 @@ package org.loomy;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 
 public class SteemitJam extends Game {
@@ -35,8 +36,25 @@ public class SteemitJam extends Game {
 		assetManager.load("water.png", Texture.class);
 
 		assetManager.load("sevenseasailing.wav", Music.class);
+
+		assetManager.load("sounds/ahoy.wav", Sound.class);
+		assetManager.load("sounds/arghh.wav", Sound.class);
+		assetManager.load("sounds/ay.wav", Sound.class);
+		assetManager.load("sounds/ayay.wav", Sound.class);
+		assetManager.load("sounds/booty.wav", Sound.class);
+		assetManager.load("sounds/cannon.wav", Sound.class);
+		assetManager.load("sounds/monster_death.wav", Sound.class);
+		assetManager.load("sounds/monster_hit.wav", Sound.class);
+		assetManager.load("sounds/oi.wav", Sound.class);
+		assetManager.load("sounds/rum.wav", Sound.class);
+		assetManager.load("sounds/shark_bait.wav", Sound.class);
+		assetManager.load("sounds/ye.wav", Sound.class);
+
 		assetManager.finishLoading();
 		this.gameManager.assetManager = assetManager;
+		GameManager.soundMap.put("monster_death", assetManager.get("sounds/monster_death.wav"));
+		GameManager.soundMap.put("monster_hit", assetManager.get("sounds/monster_hit.wav"));
+		GameManager.soundMap.put("cannon_ball", assetManager.get("sounds/cannon.wav"));
 		setScreen(new BoatScreen(gameManager));
 	}
 

@@ -1,9 +1,11 @@
 package org.loomy.job;
 
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.math.Vector2;
 import org.loomy.BoatScreen;
 import org.loomy.Cannonball;
 import org.loomy.Crewman;
+import org.loomy.GameManager;
 
 public class JobLocation
 {
@@ -41,6 +43,7 @@ public class JobLocation
             {
                 BoatScreen.cannonballs.add(new Cannonball(position.cpy()));
 
+                GameManager.soundMap.get("cannon_ball").play();
                 if(position.x < 0)
                     BoatScreen.cannonShot_left.start();
                 else BoatScreen.cannonShot_right.start();

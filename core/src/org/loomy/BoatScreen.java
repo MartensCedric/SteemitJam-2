@@ -4,11 +4,13 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.g3d.particles.influencers.ModelInfluencer;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
@@ -69,6 +71,8 @@ public class BoatScreen extends StageScreen
     public static ParticleEffect cannonShot_left;
     public static ParticleEffect cannonShot_right;
 
+    private static Sound[] pirateSpeak;
+
     public BoatScreen(GameManager gameManager) {
         this.gameManager = gameManager;
         crewmanOnMast = null;
@@ -112,6 +116,7 @@ public class BoatScreen extends StageScreen
 
         Music music = assetManager.get("sevenseasailing.wav", Music.class);
         music.setLooping(true);
+        music.setVolume(0.02f);
         music.play();
 
         this.cannonShot_left = new ParticleEffect();
@@ -122,6 +127,22 @@ public class BoatScreen extends StageScreen
 
         cannonShot_left.setPosition(-200, -100);
         cannonShot_right.setPosition(200, -100);
+
+        this.pirateSpeak = new Sound[]{
+                assetManager.get("sounds/ahoy.wav", Sound.class),
+                assetManager.get("sounds/arghh.wav", Sound.class),
+                assetManager.get("sounds/ay.wav", Sound.class),
+                assetManager.get("sounds/booty.wav", Sound.class),
+                assetManager.get("sounds/oi.wav", Sound.class),
+                assetManager.get("sounds/rum.wav", Sound.class),
+                assetManager.get("sounds/shark_bait.wav", Sound.class),
+                assetManager.get("sounds/ye.wav", Sound.class)
+        };
+    }
+
+    public static void speak()
+    {
+        pirateSpeak[MathUtils.random(pirateSpeak.length - 1)].play();
     }
 
     public void screenShake(float delta)

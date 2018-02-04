@@ -1,6 +1,7 @@
 package org.loomy.job;
 
 import com.badlogic.gdx.Input;
+import org.loomy.BoatScreen;
 import org.loomy.Crewman;
 import org.loomy.MathUtil;
 
@@ -92,6 +93,7 @@ public class JobManager {
                             cx + size / 2, cy + size / 2)) {
                         selectedCrewman = c;
                         System.out.println("Selected crew man!");
+                        BoatScreen.speak();
                         return true;
                     }
                 }
@@ -126,6 +128,7 @@ public class JobManager {
 
                             assignJob(selectedCrewman, jl);
                             System.out.println("Crewman now has a job!");
+                            BoatScreen.speak();
                             selectedCrewman.setTarget(jl);
                         } else {
                             System.out.println("Failed to assign job!");

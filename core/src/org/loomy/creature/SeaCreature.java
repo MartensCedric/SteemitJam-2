@@ -1,9 +1,11 @@
 package org.loomy.creature;
 
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import org.loomy.BoatScreen;
 import org.loomy.Cannonball;
+import org.loomy.GameManager;
 import org.loomy.MathUtil;
 
 import static org.loomy.BoatScreen.BORDER_AT;
@@ -38,6 +40,11 @@ public abstract class SeaCreature
     getX() + getSize()/2))
             {
                 hitpoints--;
+
+                if(hitpoints <= 0)
+                    GameManager.soundMap.get("monster_death").play();
+                else GameManager.soundMap.get("monster_hit").play();
+
                 cannonballs.remove(i);
                 i--;
             }

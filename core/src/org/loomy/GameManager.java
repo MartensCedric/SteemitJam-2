@@ -15,7 +15,7 @@ public class GameManager
     private Skin skin;
 
     public AssetManager assetManager;
-    public HashMap<String, Sound> soundMap = new HashMap<>();
+    public static HashMap<String, Sound> soundMap = new HashMap<>();
 
     private static Skin defaultSkin;
     private static BitmapFont font;
