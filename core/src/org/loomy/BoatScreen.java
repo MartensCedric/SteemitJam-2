@@ -3,11 +3,9 @@ package org.loomy;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.assets.AssetManager;
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.graphics.g2d.Gdx2DPixmap;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
@@ -29,6 +27,7 @@ import org.loomy.job.JobManager;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.badlogic.gdx.graphics.g2d.Gdx2DPixmap.GDX2D_FORMAT_RGBA8888;
 import static com.badlogic.gdx.math.MathUtils.random;
 import static org.loomy.GameManager.HEIGHT;
 import static org.loomy.GameManager.WIDTH;
@@ -54,6 +53,7 @@ public class BoatScreen extends StageScreen{
     private float defaultCamX = 0;
     private float defaultCamY = 0;
 
+    private ShaderProgram waterShader;
     private ShaderProgram fogShader;
     private ShaderProgram boatShader;
 
@@ -96,6 +96,7 @@ public class BoatScreen extends StageScreen{
         String vertexShader = Gdx.files.internal("shader.vs").readString();
         String fogShaderFS = Gdx.files.internal("fog.fs").readString();
         String boatShaderFS = Gdx.files.internal("boat.fs").readString();
+        String waterShaderFS = Gdx.files.internal("water.fs").readString();
 
         fogShader = new ShaderProgram(vertexShader, fogShaderFS);
         if (!fogShader.isCompiled()) throw new GdxRuntimeException("Couldn't compile shader: " + fogShader.getLog());
@@ -103,6 +104,8 @@ public class BoatScreen extends StageScreen{
         boatShader = new ShaderProgram(vertexShader, boatShaderFS);
         if (!boatShader.isCompiled()) throw new GdxRuntimeException("Couldn't compile shader: " + boatShader.getLog());
 
+        waterShader = new ShaderProgram(vertexShader, waterShaderFS);
+        if(!waterShader.isCompiled()) throw new GdxRuntimeException("Couldn't compile shader: " + waterShader.getLog());
     }
 
     public void screenShake(float delta)
@@ -124,6 +127,7 @@ public class BoatScreen extends StageScreen{
     public void render(float delta)
     {
         deltaSinceStart += delta;
+        //Gdx.gl.glClearColor(1, 0, 0, 1);
         Gdx.gl.glClearColor(0f, 149f/255f, 233f/255f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
@@ -165,8 +169,14 @@ public class BoatScreen extends StageScreen{
 
         worldCamera.update();
 
-        batch.setProjectionMatrix(worldCamera.combined);
+
         batch.begin();
+        batch.setProjectionMatrix(getCamera().combined);
+        batch.setShader(spyglassMode ? fogShader : waterShader);
+        Texture txtWaterTile = assetManager.get("water.png", Texture.class);
+        batch.draw(txtWaterTile, 0, 0, WIDTH, HEIGHT);
+
+        batch.setProjectionMatrix(worldCamera.combined);
         batch.setShader(boatShader);
         Texture txtBoat = assetManager.get("boat.png", Texture.class);
         batch.draw(txtBoat, -txtBoat.getWidth()/2, -txtBoat.getHeight()/2);

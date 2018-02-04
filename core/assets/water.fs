@@ -89,12 +89,10 @@ void main()
     if(color.w == 0.0)
         discard;
 
-    float boat_noise = rand(v_texCoords);
-    boat_noise /= 8.0;
+    float fog = snoise(v_texCoords * vec2(3.0, 3.0));
+    fog/=6.0;
+    fog+=0.3;
 
-    float fog = snoise(v_texCoords * vec2(5.0, 5.0));
-    fog /= 4.0;
-    fog+=0.35;
-    gl_FragColor = vec4((color.r + boat_noise + fog)/2.0, (color.g + boat_noise + fog)/2.0, (color.b + boat_noise + fog)/2.0, color.w);
+    gl_FragColor = vec4((color.r + fog)/2.0, (color.g + fog)/2.0, (color.b + fog)/2.0, color.w);
 }
 
