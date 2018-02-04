@@ -23,4 +23,8 @@ public abstract class Obstacle
 
     public float getX() { return position.x; }
     public float getY() { return position.y; }
+
+    public float getSize() {
+        return size;
+    }
 }

@@ -39,6 +39,9 @@ public class SteemitJam extends Game {
 		assetManager.load("water.png", Texture.class);
 		assetManager.load("rocks.png", Texture.class);
 		assetManager.load("death-fade.png", Texture.class);
+		assetManager.load("need-ammo.png", Texture.class);
+		assetManager.load("need-rammer.png", Texture.class);
+		assetManager.load("ready.png", Texture.class);
 
 		assetManager.load("sevenseasailing.wav", Music.class);
 

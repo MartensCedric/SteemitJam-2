@@ -19,7 +19,7 @@ public class Crewman
     public Crewman(float x, float y)
     {
         position = new Vector2(x, y);
-        direction = new Vector2();
+        direction = new Vector2().setToRandomDirection();
         speed = 75f;
     }
 

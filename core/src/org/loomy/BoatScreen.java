@@ -117,7 +117,6 @@ public class BoatScreen extends StageScreen
     @Override
     public void render(float delta)
     {
-        delta *= 2;
         deltaSinceStart += delta;
 
         if(deathFade <= 0)
@@ -158,18 +157,11 @@ public class BoatScreen extends StageScreen
                     seaCreatures.remove(i);
                     i--;
                 }else{
-                    if(Math.abs(s.getX()) < boatX + 220 + 32 * CREATURE_SIZE_MUL/2.0)
-                    {
-                        death = true;
-                        lblSurvivalTime = new Label(String.format("You survived %.0f seconds sailing in the seven seas", deltaSinceStart), getDefaultSkin());
-                        lblSurvivalTime.setX(WIDTH/2 - 200);
-                        lblSurvivalTime.setY(HEIGHT/2);
-                        lblPort.setVisible(false);
-                        lblStarboard.setVisible(false);
-                        sldSteering.setVisible(false);
-                        txtToggleSpyglass.setVisible(false);
-                        getStage().addActor(lblSurvivalTime);
-                    }
+
+                    float dis = Math.abs(s.getX() - boatX);
+
+                    if(dis < 32 * CREATURE_SIZE_MUL)
+                        die();
                 }
             }
 
@@ -181,6 +173,16 @@ public class BoatScreen extends StageScreen
                 {
                     obstacles.remove(i);
                     i--;
+                }else{
+                    if(o.getY() < o.getSize() * OBSTACLE_SIZE_MUL/1.5
+                            && o.getY() > -o.getSize() * OBSTACLE_SIZE_MUL/1.5)
+                    {
+                        float dis = Math.abs(o.getX() - boatX);
+                        if(dis < o.getSize() * OBSTACLE_SIZE_MUL/1.5)
+                        {
+                            die();
+                        }
+                    }
                 }
             }
 
@@ -322,6 +324,24 @@ public class BoatScreen extends StageScreen
                 Texture txtAmmo = assetManager.get("ammo.png", Texture.class);
                 batch.draw(txtAmmo, boatX + jl.getX() - txtAmmo.getWidth()/2, jl.getY() - txtAmmo.getHeight()/2);
                 batch.setShader(null);
+            }else if(jl.getJob() instanceof CannonFillJob)
+            {
+                batch.setShader(fogShader);
+                Texture txtNeedAmmo = assetManager.get("need-ammo.png", Texture.class);
+                batch.draw(txtNeedAmmo, boatX + jl.getX() - txtNeedAmmo.getWidth()/2, jl.getY() - txtNeedAmmo.getHeight()/2);
+                batch.setShader(null);
+            }else if(jl.getJob() instanceof CannonRamJob)
+            {
+                batch.setShader(fogShader);
+                Texture txtNeedRammer = assetManager.get("need-rammer.png", Texture.class);
+                batch.draw(txtNeedRammer, boatX + jl.getX() - txtNeedRammer.getWidth()/2, jl.getY() - txtNeedRammer.getHeight()/2);
+                batch.setShader(null);
+            }else if(jl.getJob() instanceof CannonFireJob)
+            {
+                batch.setShader(fogShader);
+                Texture txtReady = assetManager.get("ready.png", Texture.class);
+                batch.draw(txtReady, boatX + jl.getX() - txtReady.getWidth()/2, jl.getY() - txtReady.getHeight()/2);
+                batch.setShader(null);
             }
         }
 
@@ -423,6 +443,18 @@ public class BoatScreen extends StageScreen
         cannonShot_left.setPosition(boatX - 200, -100);
         cannonShot_right.setPosition(boatX + 200, -100);
         super.render(delta);
+    }
+
+    private void die() {
+        death = true;
+        lblSurvivalTime = new Label(String.format("You survived %.0f seconds sailing in the seven seas", deltaSinceStart), getDefaultSkin());
+        lblSurvivalTime.setX(WIDTH/2 - 200);
+        lblSurvivalTime.setY(HEIGHT/2);
+        lblPort.setVisible(false);
+        lblStarboard.setVisible(false);
+        sldSteering.setVisible(false);
+        txtToggleSpyglass.setVisible(false);
+        getStage().addActor(lblSurvivalTime);
     }
 
     public void updateCreatureWave()

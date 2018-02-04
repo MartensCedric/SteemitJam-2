@@ -12,7 +12,7 @@ public class Cannonball
 
     public Cannonball(Vector2 position)
     {
-        right = position.x > boatX;
+        right = position.x > 0;
         this.position = position;
         this.position.x += (right ? 90 : -90) + boatX;
         this.speed = 500;
