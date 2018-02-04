@@ -10,12 +10,14 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import org.loomy.creature.Kraken;
 import org.loomy.creature.SeaCreature;
@@ -27,6 +29,7 @@ import org.loomy.job.JobManager;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.badlogic.gdx.math.MathUtils.random;
 import static org.loomy.GameManager.HEIGHT;
 import static org.loomy.GameManager.WIDTH;
 import static org.loomy.GameManager.getDefaultSkin;
@@ -46,6 +49,14 @@ public class BoatScreen extends StageScreen{
 
     public static final float CANNONBALL_SIZE = 32;
     private static final float CREATURE_SIZE_MUL = 15;
+    public static final float CANNON_SHAKE = 0.5f;
+    public static float shakeLeft = 0;
+    private float defaultCamX = 0;
+    private float defaultCamY = 0;
+
+    private ShaderProgram fogShader;
+    private ShaderProgram boatShader;
+
     public static final float BORDER_AT = 2_700;
     public static final float MAST_X = 0;
     public static final float MAST_Y = 50;
@@ -78,6 +89,28 @@ public class BoatScreen extends StageScreen{
                 setSpyglassMode(!spyglassMode);
             }
         });
+
+        this.defaultCamX = worldCamera.position.x;
+        this.defaultCamY = worldCamera.position.y;
+
+        String vertexShader = Gdx.files.internal("shader.vs").readString();
+        String fogShaderFS = Gdx.files.internal("fog.fs").readString();
+        String boatShaderFS = Gdx.files.internal("boat.fs").readString();
+
+        fogShader = new ShaderProgram(vertexShader, fogShaderFS);
+        if (!fogShader.isCompiled()) throw new GdxRuntimeException("Couldn't compile shader: " + fogShader.getLog());
+
+        boatShader = new ShaderProgram(vertexShader, boatShaderFS);
+        if (!boatShader.isCompiled()) throw new GdxRuntimeException("Couldn't compile shader: " + boatShader.getLog());
+
+    }
+
+    public void screenShake(float delta)
+    {
+        float currentPower = 500 * worldCamera.zoom * delta;
+        float x = (random.nextFloat() - 0.5f) * currentPower;
+        float y = (random.nextFloat() - 0.5f) * currentPower;
+        worldCamera.translate(-x, -y);
     }
 
     public void setSpyglassMode(boolean spyglassMode)
@@ -121,11 +154,24 @@ public class BoatScreen extends StageScreen{
             }
         }
 
+        worldCamera.position.x = defaultCamX;
+        worldCamera.position.y = defaultCamY;
+
+        if(shakeLeft > 0)
+        {
+            screenShake(delta);
+            shakeLeft -= delta;
+        }
+
+        worldCamera.update();
+
         batch.setProjectionMatrix(worldCamera.combined);
         batch.begin();
+        batch.setShader(boatShader);
         Texture txtBoat = assetManager.get("boat.png", Texture.class);
         batch.draw(txtBoat, -txtBoat.getWidth()/2, -txtBoat.getHeight()/2);
 
+        batch.setShader(fogShader);
         Texture txtCannonball = assetManager.get("cannon-ball.png", Texture.class);
         for(Cannonball c : cannonballs)
             batch.draw(txtCannonball, c.getPosition().x - txtCannonball.getWidth()/2,
@@ -163,6 +209,7 @@ public class BoatScreen extends StageScreen{
         Texture txtWheel = assetManager.get("wheel.png", Texture.class);
         batch.draw(txtWheel, 0 - txtWheel.getWidth()/2, -225 - txtWheel.getHeight()/2);
 
+        batch.setShader(null);
         Texture txtJobLocation = assetManager.get("job-location.png", Texture.class);
         Texture txtJobLocationProgress = assetManager.get("job-location-progress.png", Texture.class);
         Texture txtJobLocationFinished = assetManager.get("job-location-finished.png", Texture.class);
@@ -190,6 +237,7 @@ public class BoatScreen extends StageScreen{
                     jl.getY() - txtJobState.getHeight()/2);
         }
 
+
         Crewman selectedCrewman = jobManager.getSelectedCrewman();
         if(selectedCrewman != null)
         {
@@ -201,6 +249,7 @@ public class BoatScreen extends StageScreen{
                     y - txtSelectedCrewman.getHeight()/2);
         }
 
+        batch.setShader(fogShader);
         Texture txtCannon = assetManager.get("cannon.png", Texture.class);
         batch.draw(txtCannon, -152 - txtCannon.getWidth()/2, -102 - txtCannon.getHeight()/2);
         batch.draw(txtCannon, 120, -118, txtCannon.getWidth()/2, txtCannon.getHeight()/2
@@ -235,8 +284,10 @@ public class BoatScreen extends StageScreen{
             }
         }
 
+        batch.setShader(boatShader);
         Texture txtMast = assetManager.get("mast.png", Texture.class);
         batch.draw(txtMast, -txtBoat.getWidth()/2, -txtBoat.getHeight()/2);
+        batch.setShader(fogShader);
         if(crewmanOnMast != null) {
             Texture txtCrewmanOnMast = assetManager.get("crewman-spyglass.png", Texture.class);
             TextureRegion tr = new TextureRegion(txtCrewmanOnMast);

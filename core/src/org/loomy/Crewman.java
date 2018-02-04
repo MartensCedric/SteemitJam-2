@@ -32,7 +32,7 @@ public class Crewman
 
             position.add(direction.cpy().scl(speed * delta));
 
-            if(position.epsilonEquals(target, 0.5f))
+            if(position.epsilonEquals(target, 1f))
             {
                 position = target;
                 walkingTarget.getJob().startJob();

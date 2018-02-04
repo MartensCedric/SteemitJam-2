@@ -35,17 +35,15 @@ public class JobLocation
     public void assign(Crewman crewman)
     {
         this.crewman = crewman;
-        getJob().setJobFinished(new JobFinishListener() {
-            @Override
-            public void finishJob() {
-                crewman.setItem(getJob().rewardedItem());
-                if(getJob() instanceof CannonFireJob)
-                {
-                    BoatScreen.cannonballs.add(new Cannonball(position.cpy()));
-                }else if(getJob() instanceof ClimbMastJob)
-                {
-                    BoatScreen.crewmanOnMast = crewman;
-                }
+        getJob().setJobFinished(() -> {
+            crewman.setItem(getJob().rewardedItem());
+            if(getJob() instanceof CannonFireJob)
+            {
+                BoatScreen.cannonballs.add(new Cannonball(position.cpy()));
+                BoatScreen.shakeLeft = BoatScreen.CANNON_SHAKE;
+            }else if(getJob() instanceof ClimbMastJob)
+            {
+                BoatScreen.crewmanOnMast = crewman;
             }
         });
     }
