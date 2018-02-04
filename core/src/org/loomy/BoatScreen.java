@@ -445,7 +445,7 @@ public class BoatScreen extends StageScreen
 
     private void die() {
         death = true;
-        lblSurvivalTime = new Label(String.format("You survived %.0f seconds sailing in the seven seas", deltaSinceStart), getDefaultSkin());
+        lblSurvivalTime = new Label(String.format("You survived %.0f seconds sailing on the seven seas", deltaSinceStart), getDefaultSkin());
         lblSurvivalTime.setX(WIDTH/2 - 200);
         lblSurvivalTime.setY(HEIGHT/2);
         lblPort.setVisible(false);
