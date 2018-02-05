@@ -20,3 +20,6 @@ Firin' a cannon may be a blast hehe, but ye should keep an eye on th' lookout fe
 ![loading.gif](https://steemitimages.com/DQmcfgAqzxswE5WRgS957SEiuWWXRD3UsMTJha27GS9eUsY/loading.gif)
 
 A cannon loadin' example. Yaaarrrrr, Shiver me timbers! Sorry fer th' low knot rate caused by th' one-legged heathens
+
+# Download
+Download th' game on th' upper deck [here](https://martenscedric.itch.io/sailing-)
