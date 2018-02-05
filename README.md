@@ -1,5 +1,6 @@
 # SteemitJam-2
 My entry for the second edition of SteemitJam
+
 Theme : Into the unknown
 
 # Sailing on the Seven Seas
